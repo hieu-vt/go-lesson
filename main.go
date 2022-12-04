@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -31,6 +32,10 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	if error := runService(db); error != nil {
+		log.Fatalln(error)
+	}
+
 	// inset data to database
 	//newNote := Note{Title: "This is domo note", Content: "This is content of demo note"}
 	//
@@ -39,34 +44,14 @@ func main() {
 	//}
 	//
 	//fmt.Println(newNote)
+}
 
-	// get data
-	var notes []Note
-
-	db.Where("status = ?", 1).Find(&notes)
-
-	fmt.Println("Notes: ", notes)
-
-	var note Note
-
-	result := db.Where("id = ?", 3).First(&note)
-
-	if err := result.Error; err != nil {
-		log.Println(err)
-	}
-
-	fmt.Println("Result: ", note)
-
-	// delete item
-	//db.Table(Note{}.TableName()).Where("id = ?", 1).Delete(nil)
-
-	// update
-	//db.Table(Note{}.TableName()).Where("id = 2").Updates(map[string]interface{}{
-	//	"title": "Demo 1",
-	//})
-	//note.Title = "Demo 2"
-	//db.Table(Note{}.TableName()).Where("id = 3").Updates(&note)
-
-	newTitle := "Demo 4   "
-	db.Table(Note{}.TableName()).Where("id = 3").Updates(&NoteUpdate{Title: &newTitle})
+func runService(db *gorm.DB) error {
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
