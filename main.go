@@ -1,27 +1,34 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-type Note struct {
-	Id      int    `json:"id,omitempty" gorm:"column:id;"`
-	Title   string `json:"title" gorm:"column:title;"`
-	Content string `json:"content" gorm:"column:content;"`
+type Restaurant struct {
+	Id   int    `json:"id,omitempty" gorm:"column:id;"`
+	Name string `json:"name" gorm:"column:name;"`
+	Addr string `json:"addr" gorm:"column:addr;"`
 }
 
-type NoteUpdate struct {
-	Title *string `json:"title" gorm:"column:title;"`
+type RestaurantUpdate struct {
+	Name *string `json:"name" gorm:"column:name;"`
+	Addr *string `json:"addr" gorm:"column:addr;"`
 }
 
-func (Note) TableName() string {
-	return "notes"
+func (Restaurant) TableName() string {
+	return "restaurants"
+}
+
+func (RestaurantUpdate) TableName() string {
+	return Restaurant{}.TableName()
 }
 
 func main() {
@@ -36,15 +43,6 @@ func main() {
 	if error := runService(db); error != nil {
 		log.Fatalln(error)
 	}
-
-	// inset data to database
-	//newNote := Note{Title: "This is domo note", Content: "This is content of demo note"}
-	//
-	//if err := db.Create(&newNote); err != nil {
-	//	log.Println(err)
-	//}
-	//
-	//fmt.Println(newNote)
 }
 
 func runService(db *gorm.DB) error {
@@ -54,5 +52,147 @@ func runService(db *gorm.DB) error {
 			"message": "pong",
 		})
 	})
+
+	// CRUD
+	restaurants := r.Group("/restaurants")
+	{
+		// create Restaurant
+		restaurants.POST("", func(c *gin.Context) {
+			var data Restaurant
+
+			if err := c.ShouldBind(&data); err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			if err := db.Create(&data).Error; err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			c.JSON(http.StatusOK, data)
+		})
+
+		// Get By Id
+		restaurants.GET("/:id", func(c *gin.Context) {
+			id, err := strconv.Atoi(c.Param("id"))
+
+			if err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			var data Restaurant
+
+			if err := db.Where("id = ?", id).First(&data).Error; err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			c.JSON(http.StatusOK, data)
+		})
+
+		// Get restaurants
+		restaurants.GET("/", func(c *gin.Context) {
+			var data []Restaurant
+
+			type Filter struct {
+				CityId int `json:"city_id" form:"city_id"`
+			}
+
+			var filter Filter
+
+			c.ShouldBind(&filter)
+
+			fmt.Println("filter", filter.CityId)
+
+			newDb := db
+
+			if filter.CityId > 0 {
+				newDb = db.Where("city_id = ?", filter.CityId)
+			}
+
+			if err := newDb.Find(&data).Error; err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			c.JSON(http.StatusOK, data)
+		})
+
+		// Update Restaurant
+		restaurants.PATCH("/:id", func(c *gin.Context) {
+			id, err := strconv.Atoi(c.Param("id"))
+
+			if err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			var body RestaurantUpdate
+
+			if err := c.ShouldBind(&body); err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			if err := db.Table(RestaurantUpdate{}.TableName()).Where("id = ?", id).Updates(&body).Error; err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			c.JSON(http.StatusOK, body)
+		})
+
+		// Delete Restaurant
+		restaurants.DELETE("/:id", func(c *gin.Context) {
+			id, err := strconv.Atoi(c.Param("id"))
+
+			if err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			if err := db.Table(Restaurant{}.TableName()).Where("id = ?", id).Delete(nil).Error; err != nil {
+				c.JSON(401, map[string]string{
+					"error": err.Error(),
+				})
+
+				return
+			}
+
+			c.JSON(http.StatusOK, map[string]int{
+				"ok": 1,
+			})
+		})
+	}
+
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
