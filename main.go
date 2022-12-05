@@ -25,6 +25,7 @@ func (Note) TableName() string {
 }
 
 func main() {
+	//os.Setenv("DBConnectionStr", "root:ead8686ba57479778a76e@tcp(127.0.0.1:3306)/food_delivery?charset=utf8mb4&parseTime=True&loc=Local")
 	dsn := os.Getenv("DBConnectionStr")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
