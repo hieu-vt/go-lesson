@@ -2,7 +2,6 @@ package restaurantbiz
 
 import (
 	"context"
-	"errors"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -19,8 +18,8 @@ func NewCreateRestaurantBiz(store CreateRestaurantStore) *createRestaurantBiz {
 }
 
 func (biz *createRestaurantBiz) CreateRestaurant(ctx context.Context, data *restaurantmodel.RestaurantCreate) error {
-	if data.Name == "" {
-		return errors.New("this restaurant name is not blank")
+	if err := data.ValidateRestaurantData(); err != nil {
+		return err
 	}
 
 	err := biz.store.Create(ctx, data)

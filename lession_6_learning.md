@@ -17,6 +17,8 @@ Rest API & Architecture
 
 —> Thư viện support viết restAPI của golang: https://github.com/gin-gonic/gin (Khi có 1 request thì nó tạo ra thực hiện trên 1 goroutines)
 
+**Interface:** Khai báo ở đâu dùng ở đó
+
 ## Thực hành luôn CRUD
 
 **_*Đang học 1:00:42 *_**

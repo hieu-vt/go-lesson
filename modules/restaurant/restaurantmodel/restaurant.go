@@ -1,5 +1,10 @@
 package restaurantmodel
 
+import (
+	"errors"
+	"strings"
+)
+
 type Restaurant struct {
 	Id   int    `json:"id,omitempty" gorm:"column:id;"`
 	Name string `json:"name" gorm:"column:name;"`
@@ -26,4 +31,14 @@ type RestaurantCreate struct {
 
 func (RestaurantCreate) TableName() string {
 	return Restaurant{}.TableName()
+}
+
+func (res *RestaurantCreate) ValidateRestaurantData() error {
+	res.Name = strings.TrimSpace(res.Name)
+
+	if len(res.Name) == 0 {
+		return errors.New("this restaurant name is not blank")
+	}
+
+	return nil
 }

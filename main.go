@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"lesson-5-goland/component"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	"log"
 	"net/http"
@@ -55,10 +56,11 @@ func runService(db *gorm.DB) error {
 	})
 
 	// CRUD
+	appCtx := component.NewAppContext(db)
 	restaurants := r.Group("/restaurants")
 	{
 		// create Restaurant
-		restaurants.POST("", ginrestaurent.CreateRestaurant(db))
+		restaurants.POST("", ginrestaurent.CreateRestaurant(appCtx))
 
 		// Get By Id
 		restaurants.GET("/:id", func(c *gin.Context) {
