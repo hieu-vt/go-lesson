@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	"log"
 	"net/http"
 	"os"
@@ -57,27 +58,7 @@ func runService(db *gorm.DB) error {
 	restaurants := r.Group("/restaurants")
 	{
 		// create Restaurant
-		restaurants.POST("", func(c *gin.Context) {
-			var data Restaurant
-
-			if err := c.ShouldBind(&data); err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			if err := db.Create(&data).Error; err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			c.JSON(http.StatusOK, data)
-		})
+		restaurants.POST("", ginrestaurent.CreateRestaurant(db))
 
 		// Get By Id
 		restaurants.GET("/:id", func(c *gin.Context) {
