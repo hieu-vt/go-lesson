@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/component"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
@@ -88,35 +87,7 @@ func runService(db *gorm.DB) error {
 		})
 
 		// Get restaurants
-		restaurants.GET("/", func(c *gin.Context) {
-			var data []Restaurant
-
-			type Filter struct {
-				CityId int `json:"city_id" form:"city_id"`
-			}
-
-			var filter Filter
-
-			c.ShouldBind(&filter)
-
-			fmt.Println("filter", filter.CityId)
-
-			newDb := db
-
-			if filter.CityId > 0 {
-				newDb = db.Where("city_id = ?", filter.CityId)
-			}
-
-			if err := newDb.Find(&data).Error; err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			c.JSON(http.StatusOK, data)
-		})
+		restaurants.GET("/", ginrestaurent.ListRestaurant(appCtx))
 
 		// Update Restaurant
 		restaurants.PATCH("/:id", func(c *gin.Context) {
