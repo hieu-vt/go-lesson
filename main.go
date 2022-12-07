@@ -61,30 +61,8 @@ func runService(db *gorm.DB) error {
 		// create Restaurant
 		restaurants.POST("", ginrestaurent.CreateRestaurant(appCtx))
 
-		// Get By Id
-		restaurants.GET("/:id", func(c *gin.Context) {
-			id, err := strconv.Atoi(c.Param("id"))
-
-			if err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			var data Restaurant
-
-			if err := db.Where("id = ?", id).First(&data).Error; err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			c.JSON(http.StatusOK, data)
-		})
+		// Get By id
+		restaurants.GET("/:id", ginrestaurent.GetRestaurant(appCtx))
 
 		// Get restaurants
 		restaurants.GET("/", ginrestaurent.ListRestaurant(appCtx))

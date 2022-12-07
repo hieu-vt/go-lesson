@@ -9,13 +9,13 @@ import (
 func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition map[string]interface{},
 	filter restaurantmodel.Filter,
 	paging common.Paging,
-	moreOptions ...string,
+	moreKeys ...string,
 ) ([]restaurantmodel.Restaurant, error) {
 	var result []restaurantmodel.Restaurant
 	db := s.db
 
-	for v := range moreOptions {
-		db = s.db.Preload(string(v))
+	for i := range moreKeys {
+		db = s.db.Preload(moreKeys[i])
 	}
 
 	db = db.Table(restaurantmodel.Restaurant{}.TableName()).Where(condition)
