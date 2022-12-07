@@ -2,15 +2,13 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"lesson-5-goland/component"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
-
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
 type Restaurant struct {
@@ -71,29 +69,7 @@ func runService(db *gorm.DB) error {
 		restaurants.PATCH("/:id", ginrestaurent.UpdateRestaurant(appCtx))
 
 		// Delete Restaurant
-		restaurants.DELETE("/:id", func(c *gin.Context) {
-			id, err := strconv.Atoi(c.Param("id"))
-
-			if err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			if err := db.Table(Restaurant{}.TableName()).Where("id = ?", id).Delete(nil).Error; err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			c.JSON(http.StatusOK, map[string]int{
-				"ok": 1,
-			})
-		})
+		restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(appCtx))
 	}
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
