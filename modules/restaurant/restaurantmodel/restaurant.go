@@ -2,13 +2,14 @@ package restaurantmodel
 
 import (
 	"errors"
+	"lesson-5-goland/common"
 	"strings"
 )
 
 type Restaurant struct {
-	Id   int    `json:"id,omitempty" gorm:"column:id;"`
-	Name string `json:"name" gorm:"column:name;"`
-	Addr string `json:"addr" gorm:"column:addr;"`
+	common.SqlModel `json:",inline"`
+	Name            string `json:"name" gorm:"column:name;"`
+	Addr            string `json:"addr" gorm:"column:addr;"`
 }
 
 func (Restaurant) TableName() string {
@@ -16,8 +17,9 @@ func (Restaurant) TableName() string {
 }
 
 type RestaurantUpdate struct {
-	Name *string `json:"name" gorm:"column:name;"`
-	Addr *string `json:"addr" gorm:"column:addr;"`
+	common.SqlModel `json:",inline"`
+	Name            *string `json:"name" gorm:"column:name;"`
+	Addr            *string `json:"addr" gorm:"column:addr;"`
 }
 
 func (RestaurantUpdate) TableName() string {

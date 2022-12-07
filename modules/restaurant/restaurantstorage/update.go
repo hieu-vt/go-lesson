@@ -5,10 +5,10 @@ import (
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
-func (s *sqlStore) UpdateData(ctx context.Context, condition map[string]interface{}, body *restaurantmodel.RestaurantUpdate) error {
+func (s *sqlStore) UpdateData(ctx context.Context, id int, body *restaurantmodel.RestaurantUpdate) error {
 	db := s.db
 
-	if err := db.Table(restaurantmodel.RestaurantUpdate{}.TableName()).Where(condition).Updates(&body).Error; err != nil {
+	if err := db.Where("id = ?", id).Updates(&body).Error; err != nil {
 		return err
 	}
 

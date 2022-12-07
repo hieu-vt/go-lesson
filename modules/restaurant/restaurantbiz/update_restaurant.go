@@ -2,11 +2,13 @@ package restaurantbiz
 
 import (
 	"context"
+	"errors"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
 type UpdateRestaurantStore interface {
-	UpdateData(ctx context.Context, condition map[string]interface{}, body *restaurantmodel.RestaurantUpdate) error
+	FindByCondition(ctx context.Context, condition map[string]interface{}, moreKeys ...string) (*restaurantmodel.Restaurant, error)
+	UpdateData(ctx context.Context, id int, body *restaurantmodel.RestaurantUpdate) error
 }
 
 type updateRestaurantBiz struct {
@@ -19,8 +21,18 @@ func NewUpdateRestaurant(store UpdateRestaurantStore) *updateRestaurantBiz {
 	}
 }
 
-func (biz *updateRestaurantBiz) UpdateRestaurant(ctx context.Context, id interface{}, body *restaurantmodel.RestaurantUpdate) error {
-	if err := biz.store.UpdateData(ctx, map[string]interface{}{"id": id}, body); err != nil {
+func (biz *updateRestaurantBiz) UpdateRestaurant(ctx context.Context, id int, body *restaurantmodel.RestaurantUpdate) error {
+	data, err := biz.store.FindByCondition(ctx, map[string]interface{}{"id": id})
+
+	if err != nil {
+		return err
+	}
+
+	if data.Status <= 0 {
+		return errors.New("restaurant not active")
+	}
+
+	if err := biz.store.UpdateData(ctx, id, body); err != nil {
 		return err
 	}
 
