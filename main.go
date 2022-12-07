@@ -68,37 +68,7 @@ func runService(db *gorm.DB) error {
 		restaurants.GET("/", ginrestaurent.ListRestaurant(appCtx))
 
 		// Update Restaurant
-		restaurants.PATCH("/:id", func(c *gin.Context) {
-			id, err := strconv.Atoi(c.Param("id"))
-
-			if err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			var body RestaurantUpdate
-
-			if err := c.ShouldBind(&body); err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			if err := db.Table(RestaurantUpdate{}.TableName()).Where("id = ?", id).Updates(&body).Error; err != nil {
-				c.JSON(401, map[string]string{
-					"error": err.Error(),
-				})
-
-				return
-			}
-
-			c.JSON(http.StatusOK, body)
-		})
+		restaurants.PATCH("/:id", ginrestaurent.UpdateRestaurant(appCtx))
 
 		// Delete Restaurant
 		restaurants.DELETE("/:id", func(c *gin.Context) {
