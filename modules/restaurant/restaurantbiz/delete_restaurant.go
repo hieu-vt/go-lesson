@@ -1,9 +1,14 @@
 package restaurantbiz
 
-import "context"
+import (
+	"context"
+	"errors"
+	"lesson-5-goland/modules/restaurant/restaurantmodel"
+)
 
 type DeleteRestaurantStore interface {
-	DeleteRestaurantWithCondition(ctx context.Context, condition map[string]interface{}) error
+	FindByCondition(ctx context.Context, condition map[string]interface{}, moreKeys ...string) (*restaurantmodel.Restaurant, error)
+	DeleteRestaurantWithCondition(ctx context.Context, id int) error
 }
 
 type deleteRestaurantBiz struct {
@@ -17,9 +22,18 @@ func NewDeleteRestaurantBiz(store DeleteRestaurantStore) *deleteRestaurantBiz {
 }
 
 func (biz *deleteRestaurantBiz) DeleteRestaurant(ctx context.Context, id int) error {
-	err := biz.store.DeleteRestaurantWithCondition(ctx, map[string]interface{}{"id": id})
+
+	data, err := biz.store.FindByCondition(ctx, map[string]interface{}{"id": id})
 
 	if err != nil {
+		return err
+	}
+
+	if data.Status <= 0 {
+		return errors.New("restaurant not found")
+	}
+
+	if err := biz.store.DeleteRestaurantWithCondition(ctx, id); err != nil {
 		return err
 	}
 

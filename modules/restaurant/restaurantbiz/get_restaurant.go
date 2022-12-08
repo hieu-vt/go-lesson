@@ -2,6 +2,7 @@ package restaurantbiz
 
 import (
 	"context"
+	"errors"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -24,6 +25,10 @@ func (biz *getRestaurantBiz) GetRestaurantById(ctx context.Context, id interface
 
 	if err != nil {
 		return nil, err
+	}
+
+	if result.Status == 0 {
+		return nil, errors.New("data deleted")
 	}
 
 	return result, nil

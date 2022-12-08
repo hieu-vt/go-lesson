@@ -44,3 +44,11 @@ func (res *RestaurantCreate) ValidateRestaurantData() error {
 
 	return nil
 }
+
+type RestaurantDelete struct {
+	Status *int `json:"status" gorm:"column:status;"`
+}
+
+func (RestaurantDelete) TableName() string {
+	return Restaurant{}.TableName()
+}

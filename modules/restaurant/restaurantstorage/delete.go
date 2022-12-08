@@ -5,10 +5,11 @@ import (
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
-func (s *sqlStore) DeleteRestaurantWithCondition(ctx context.Context, condition map[string]interface{}) error {
+func (s *sqlStore) DeleteRestaurantWithCondition(ctx context.Context, id int) error {
 	db := s.db
+	status := 0
 
-	if err := db.Table(restaurantmodel.Restaurant{}.TableName()).Where(condition).Delete(nil).Error; err != nil {
+	if err := db.Where("id = ?", id).Updates(&restaurantmodel.RestaurantDelete{Status: &status}).Error; err != nil {
 		return err
 	}
 
