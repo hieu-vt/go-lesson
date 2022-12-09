@@ -2,6 +2,7 @@ package restaurantstorage
 
 import (
 	"context"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -9,7 +10,7 @@ func (s *sqlStore) Create(ctx context.Context, data *restaurantmodel.RestaurantC
 	db := s.db
 
 	if err := db.Create(&data).Error; err != nil {
-		return err
+		return common.ErrDB(err)
 	}
 
 	return nil

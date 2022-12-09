@@ -3,6 +3,7 @@ package restaurantbiz
 import (
 	"context"
 	"errors"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -26,15 +27,15 @@ func (biz *deleteRestaurantBiz) DeleteRestaurant(ctx context.Context, id int) er
 	data, err := biz.store.FindByCondition(ctx, map[string]interface{}{"id": id})
 
 	if err != nil {
-		return err
+		return common.ErrEntityNotFound(restaurantmodel.EntityName, err)
 	}
 
 	if data.Status <= 0 {
-		return errors.New("restaurant not found")
+		return common.ErrEntityNotFound(restaurantmodel.EntityName, errors.New("restaurant not found"))
 	}
 
 	if err := biz.store.DeleteRestaurantWithCondition(ctx, id); err != nil {
-		return err
+		return common.ErrCannotDeleteEntity(restaurantmodel.EntityName, errors.New("restaurant not found"))
 	}
 
 	return nil

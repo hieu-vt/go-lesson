@@ -3,6 +3,7 @@ package restaurantbiz
 import (
 	"context"
 	"errors"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -25,15 +26,15 @@ func (biz *updateRestaurantBiz) UpdateRestaurant(ctx context.Context, id int, bo
 	data, err := biz.store.FindByCondition(ctx, map[string]interface{}{"id": id})
 
 	if err != nil {
-		return err
+		return common.ErrCannotUpdateEntity(restaurantmodel.EntityName, err)
 	}
 
 	if data.Status <= 0 {
-		return errors.New("restaurant not active")
+		return common.ErrCannotUpdateEntity(restaurantmodel.EntityName, errors.New("restaurant not active"))
 	}
 
 	if err := biz.store.UpdateData(ctx, id, body); err != nil {
-		return err
+		return common.ErrCannotUpdateEntity(restaurantmodel.EntityName, err)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package restaurantbiz
 import (
 	"context"
 	"errors"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -24,11 +25,14 @@ func (biz *getRestaurantBiz) GetRestaurantById(ctx context.Context, id interface
 	})
 
 	if err != nil {
-		return nil, err
+		if err == common.RecordNotFound {
+			return nil, common.ErrEntityNotFound(restaurantmodel.EntityName, common.RecordNotFound)
+		}
+		return nil, common.ErrEntityNotFound(restaurantmodel.EntityName, err)
 	}
 
 	if result.Status == 0 {
-		return nil, errors.New("data deleted")
+		return nil, common.ErrEntityDeleted(restaurantmodel.EntityName, errors.New("data deleted"))
 	}
 
 	return result, nil

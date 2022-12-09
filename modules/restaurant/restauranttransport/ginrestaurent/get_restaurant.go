@@ -15,10 +15,7 @@ func GetRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
-
+			c.JSON(http.StatusBadRequest, err)
 			return
 		}
 
@@ -28,9 +25,7 @@ func GetRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		result, err := biz.GetRestaurantById(c, id)
 
 		if err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}

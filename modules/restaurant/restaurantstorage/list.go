@@ -25,7 +25,7 @@ func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition ma
 	}
 
 	if err := db.Count(&paging.Total).Error; err != nil {
-		return nil, err
+		return nil, common.ErrDB(err)
 	}
 
 	offset := (paging.Page - 1) * paging.Limit
@@ -33,7 +33,7 @@ func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition ma
 	err := db.Offset(offset).Limit(paging.Limit).Find(&result).Error
 
 	if err != nil {
-		return nil, err
+		return nil, common.ErrDB(err)
 	}
 
 	return result, nil

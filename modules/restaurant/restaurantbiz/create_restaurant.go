@@ -2,6 +2,7 @@ package restaurantbiz
 
 import (
 	"context"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -19,7 +20,7 @@ func NewCreateRestaurantBiz(store CreateRestaurantStore) *createRestaurantBiz {
 
 func (biz *createRestaurantBiz) CreateRestaurant(ctx context.Context, data *restaurantmodel.RestaurantCreate) error {
 	if err := data.ValidateRestaurantData(); err != nil {
-		return err
+		return common.ErrNoPermission(err)
 	}
 
 	err := biz.store.Create(ctx, data)

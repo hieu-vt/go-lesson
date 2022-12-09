@@ -2,6 +2,7 @@ package restaurantstorage
 
 import (
 	"context"
+	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 )
 
@@ -10,7 +11,7 @@ func (s *sqlStore) DeleteRestaurantWithCondition(ctx context.Context, id int) er
 	status := 0
 
 	if err := db.Where("id = ?", id).Updates(&restaurantmodel.RestaurantDelete{Status: &status}).Error; err != nil {
-		return err
+		return common.ErrDB(err)
 	}
 
 	return nil
