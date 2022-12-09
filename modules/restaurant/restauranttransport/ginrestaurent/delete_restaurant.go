@@ -15,9 +15,7 @@ func DeleteRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}
@@ -26,9 +24,7 @@ func DeleteRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		biz := restaurantbiz.NewDeleteRestaurantBiz(store)
 
 		if err := biz.DeleteRestaurant(c, id); err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}

@@ -16,9 +16,7 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}
@@ -26,9 +24,7 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		var body restaurantmodel.RestaurantUpdate
 
 		if err := c.ShouldBind(&body); err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}
@@ -37,9 +33,7 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		biz := restaurantbiz.NewUpdateRestaurant(store)
 
 		if err := biz.UpdateRestaurant(c, id, &body); err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}

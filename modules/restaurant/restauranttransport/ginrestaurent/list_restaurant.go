@@ -15,9 +15,7 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		var filter restaurantmodel.Filter
 
 		if err := c.ShouldBind(&filter); err != nil {
-			c.JSON(401, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}
@@ -25,9 +23,7 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		var paging common.Paging
 
 		if err := c.ShouldBind(&paging); err != nil {
-			c.JSON(401, gin.H{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 
 			return
 		}
@@ -39,9 +35,7 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		result, err := biz.ListRestaurant(c, filter, paging)
 
 		if err != nil {
-			c.JSON(401, map[string]string{
-				"error": err.Error(),
-			})
+			c.JSON(401, err)
 			return
 		}
 
