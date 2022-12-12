@@ -5,8 +5,10 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"lesson-5-goland/component"
+	"lesson-5-goland/component/uploadprovider"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
+	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
 	"log"
 	"net/http"
 	"os"
@@ -33,19 +35,27 @@ func (RestaurantUpdate) TableName() string {
 
 func main() {
 	dsn := os.Getenv("DBConnectionStr")
+	S3BucketName := os.Getenv("S3BucketNameStr")
+	S3Region := os.Getenv("S3RegionStr")
+	S3ApiKey := os.Getenv("S3ApiKeyStr")
+	S3Secret := os.Getenv("S3SecretStr")
+	S3Domain := os.Getenv("S3DomainStr")
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	s3Provider := uploadprovider.NewS3Provider(S3BucketName, S3Region, S3ApiKey, S3Secret, S3Domain)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	if error := runService(db); error != nil {
+	if error := runService(db, s3Provider); error != nil {
 		log.Fatalln(error)
 	}
 }
 
-func runService(db *gorm.DB) error {
-	appCtx := component.NewAppContext(db)
+func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
+	appCtx := component.NewAppContext(db, provider)
 	r := gin.Default()
 	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(c *gin.Context) {
@@ -53,6 +63,8 @@ func runService(db *gorm.DB) error {
 			"message": "pong",
 		})
 	})
+
+	r.POST("/upload", ginupload.UploadFile(appCtx))
 
 	// CRUD
 	restaurants := r.Group("/restaurants")
