@@ -8,12 +8,11 @@ import (
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 	"lesson-5-goland/modules/restaurant/restaurantstorage"
 	"net/http"
-	"strconv"
 )
 
 func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.Atoi(c.Param("id"))
+		uid, err := common.FromBase58(c.Param("id"))
 
 		if err != nil {
 			panic(common.ErrInvalidRequest(err))
@@ -29,7 +28,7 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		store := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := restaurantbiz.NewUpdateRestaurant(store)
 
-		if err := biz.UpdateRestaurant(c, id, &body); err != nil {
+		if err := biz.UpdateRestaurant(c, int(uid.GetLocalID()), &body); err != nil {
 			panic(err)
 		}
 

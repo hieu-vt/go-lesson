@@ -3,8 +3,14 @@ package common
 import "time"
 
 type SqlModel struct {
-	Id        int       `json:"id,omitempty" gorm:"column:id;"`
-	Status    int       `json:"status" gorm:"column:status;"`
+	Id        int       `json:"-" gorm:"column:id;"`
+	FakeId    *UID      `json:"id" gorm:"-"`
+	Status    int       `json:"status" gorm:"column:status;default=1"`
 	CreatedAt time.Time `json:"created_at" gorm:"column:created_at;"`
-	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at;"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"column:updated_at;"`
+}
+
+func (m *SqlModel) GenUID(dbType int) {
+	uid := NewUID(uint32(m.Id), dbType, 1)
+	m.FakeId = &uid
 }

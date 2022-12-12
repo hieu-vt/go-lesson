@@ -33,10 +33,11 @@ func (RestaurantUpdate) TableName() string {
 }
 
 type RestaurantCreate struct {
-	Name  string         `json:"name" gorm:"column:name;"`
-	Addr  string         `json:"addr" gorm:"column:addr;"`
-	Logo  *common.Image  `json:"logo" gorm:"column:logo;"`
-	Cover *common.Images `json:"cover" gorm:"column:cover;"`
+	common.SqlModel `json:",inline"`
+	Name            string         `json:"name" gorm:"column:name;"`
+	Addr            string         `json:"addr" gorm:"column:addr;"`
+	Logo            *common.Image  `json:"logo" gorm:"column:logo;"`
+	Cover           *common.Images `json:"cover" gorm:"column:cover;"`
 }
 
 func (RestaurantCreate) TableName() string {
@@ -59,4 +60,12 @@ type RestaurantDelete struct {
 
 func (RestaurantDelete) TableName() string {
 	return Restaurant{}.TableName()
+}
+
+func (data *Restaurant) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
+}
+
+func (data *RestaurantCreate) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
 }
