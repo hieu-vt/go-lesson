@@ -23,4 +23,6 @@ Rest API & Architecture
 
 ## Error handling
 
+**Cơ chế panic và recover**: hoạt động dựa trên cơ chế stack frame, hoạt động trên 1 stack frame
+
 **_*Đang học 1:00:42 *_**

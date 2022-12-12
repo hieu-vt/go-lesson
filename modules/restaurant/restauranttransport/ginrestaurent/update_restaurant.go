@@ -16,16 +16,13 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		id, err := strconv.Atoi(c.Param("id"))
 
 		if err != nil {
-			c.JSON(401, err)
-
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		var body restaurantmodel.RestaurantUpdate
 
 		if err := c.ShouldBind(&body); err != nil {
-			c.JSON(401, err)
-
+			panic(common.ErrInvalidRequest(err))
 			return
 		}
 
@@ -33,9 +30,7 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		biz := restaurantbiz.NewUpdateRestaurant(store)
 
 		if err := biz.UpdateRestaurant(c, id, &body); err != nil {
-			c.JSON(401, err)
-
-			return
+			panic(err)
 		}
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(map[string]int{"ok": 1}))

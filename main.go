@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"lesson-5-goland/component"
+	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	"log"
 	"net/http"
@@ -31,7 +32,6 @@ func (RestaurantUpdate) TableName() string {
 }
 
 func main() {
-	//os.Setenv("DBConnectionStr", "root:ead8686ba57479778a76e@tcp(127.0.0.1:3306)/food_delivery?charset=utf8mb4&parseTime=True&loc=Local")
 	dsn := os.Getenv("DBConnectionStr")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
@@ -45,7 +45,9 @@ func main() {
 }
 
 func runService(db *gorm.DB) error {
+	appCtx := component.NewAppContext(db)
 	r := gin.Default()
+	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -53,7 +55,6 @@ func runService(db *gorm.DB) error {
 	})
 
 	// CRUD
-	appCtx := component.NewAppContext(db)
 	restaurants := r.Group("/restaurants")
 	{
 		// create Restaurant
