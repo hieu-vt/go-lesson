@@ -8,6 +8,6 @@ type RestaurantLike struct {
 	CreatedAt    time.Time `json:"created_at" gorm:"column:created_at"`
 }
 
-func (*RestaurantLike) TableName() string {
+func (RestaurantLike) TableName() string {
 	return "restaurant_likes"
 }
