@@ -8,6 +8,7 @@ import (
 	"lesson-5-goland/component/uploadprovider"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
+	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
 	"log"
 	"net/http"
@@ -67,6 +68,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
 	r.POST("/upload", ginupload.UploadFile(appCtx))
 
 	// CRUD
+	// Restaurant
 	restaurants := r.Group("/restaurants")
 	{
 		// create Restaurant
@@ -83,6 +85,12 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
 
 		// Delete Restaurant
 		restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(appCtx))
+	}
+
+	// Like Restaurant
+	likeRestaurants := r.Group("/like")
+	{
+		likeRestaurants.POST("", ginlikerestaurant.LikeOrUnlikeRestaurant(appCtx))
 	}
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

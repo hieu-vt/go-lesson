@@ -11,3 +11,12 @@ type RestaurantLike struct {
 func (RestaurantLike) TableName() string {
 	return "restaurant_likes"
 }
+
+type RestaurantCreateLike struct {
+	RestaurantId int `json:"restaurant_id" gorm:"column:restaurant_id"`
+	UserId       int `json:"user_id" gorm:"column:user_id;"`
+}
+
+func (RestaurantCreateLike) TableName() string {
+	return "restaurant_likes"
+}
