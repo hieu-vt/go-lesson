@@ -7,6 +7,7 @@ import (
 	"lesson-5-goland/modules/restaurant/restaurantbiz"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 	"lesson-5-goland/modules/restaurant/restaurantstorage"
+	restaurantlikestorage "lesson-5-goland/modules/restaurantlike/storage"
 	"net/http"
 )
 
@@ -28,7 +29,8 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		paging.FullFill()
 
 		store := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := restaurantbiz.NewListRestaurant(store)
+		likeStore := restaurantlikestorage.NewSqlStore(appCtx.GetMainDBConnection())
+		biz := restaurantbiz.NewListRestaurant(store, likeStore)
 		result, err := biz.ListRestaurant(c, filter, paging)
 
 		if err != nil {
