@@ -18,7 +18,7 @@ func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition ma
 		db = s.db.Preload(moreKeys[i])
 	}
 
-	db = db.Table(restaurantmodel.Restaurant{}.TableName()).Where(condition).Where("status in (1)")
+	db = db.Table(restaurantmodel.Restaurant{}.TableName()).Order("id desc").Where(condition).Where("status in (1)")
 
 	if filter.CityId > 0 {
 		db = db.Where("city_id = ?", filter.CityId)
@@ -28,9 +28,18 @@ func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition ma
 		return nil, common.ErrDB(err)
 	}
 
-	offset := (paging.Page - 1) * paging.Limit
+	if paging.FakeCursor != "" {
+		if uid, err := common.FromBase58(paging.FakeCursor); err == nil {
+			db = db.Where("id < ?", uid.GetLocalID())
+		} else {
+			return nil, common.ErrDB(err)
+		}
+	} else {
+		offset := (paging.Page - 1) * paging.Limit
+		db = db.Offset(offset)
+	}
 
-	err := db.Offset(offset).Limit(paging.Limit).Find(&result).Error
+	err := db.Limit(paging.Limit).Find(&result).Error
 
 	if err != nil {
 		return nil, common.ErrDB(err)
