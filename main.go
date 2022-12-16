@@ -42,6 +42,7 @@ func main() {
 	S3ApiKey := os.Getenv("S3ApiKeyStr")
 	S3Secret := os.Getenv("S3SecretStr")
 	S3Domain := os.Getenv("S3DomainStr")
+	secretKey := os.Getenv("SecretKeyStr")
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
@@ -51,13 +52,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	if error := runService(db, s3Provider); error != nil {
+	if error := runService(db, s3Provider, secretKey); error != nil {
 		log.Fatalln(error)
 	}
 }
 
-func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
-	appCtx := component.NewAppContext(db, provider)
+func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
+	appCtx := component.NewAppContext(db, provider, secretKey)
 	r := gin.Default()
 	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(c *gin.Context) {
@@ -71,6 +72,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
 
 	// authorized
 	v1.POST("/register", ginuser.Register(appCtx))
+	v1.POST("/login", ginuser.Login(appCtx))
 
 	// upload
 	v1.POST("/upload", ginupload.UploadFile(appCtx))

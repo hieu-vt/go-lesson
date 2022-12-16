@@ -8,7 +8,7 @@ import (
 type UserCreate struct {
 	common.SqlModel `json:",inline"`
 	Email           string        `json:"email" gorm:"email"`
-	Password        string        `json:"-" gorm:"password"`
+	Password        string        `json:"password" gorm:"password"`
 	Salt            string        `json:"-" gorm:"salt"`
 	LastName        string        `json:"last_name" gorm:"last_name"`
 	FirstName       string        `json:"first_name" gorm:"first_name"`
@@ -22,12 +22,6 @@ func (UserCreate) TableName() string {
 }
 
 var (
-	ErrUsernameOrPasswordInvalid = common.NewCustomError(
-		errors.New("username or password invalid"),
-		"username or password invalid",
-		"ErrUsernameOrPasswordInvalid",
-	)
-
 	ErrEmailExisted = common.NewCustomError(
 		errors.New("email has already existed"),
 		"email has already existed",

@@ -28,18 +28,21 @@ func NewRegisterBiz(store RegisterUserStore, hasher Hasher) *registerBiz {
 }
 
 func (biz *registerBiz) Register(ctx context.Context, data *usermodel.UserCreate) (*usermodel.UserCreate, error) {
-	user, err := biz.store.FindUser(ctx, map[string]interface{}{"email": data.Email})
+	user, _ := biz.store.FindUser(ctx, map[string]interface{}{"email": data.Email})
 
-	if err != nil && err != common.RecordNotFound {
-		return nil, err
-	}
+	//if err != nil {
+	//	if err != common.RecordNotFound {
+	//		return nil, common.RecordNotFound
+	//	}
+	//	return nil, err
+	//}
 
-	if user.Id > 0 {
+	if user != nil && user.Id > 0 {
 		return nil, usermodel.ErrEmailExisted
 	}
 
 	data.Status = 1
-	data.Salt = common.GenSalt(50)
+	data.Salt = common.GenSalt(20)
 	data.Password = biz.hasher.Hash(data.Password + data.Salt)
 	data.Role = usermodel.USER
 

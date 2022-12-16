@@ -1,6 +1,9 @@
 package usermodel
 
-import "lesson-5-goland/common"
+import (
+	"errors"
+	"lesson-5-goland/common"
+)
 
 type roleType string
 
@@ -27,3 +30,27 @@ type User struct {
 func (User) TableName() string {
 	return "users"
 }
+
+type UserLogin struct {
+	Email    string `json:"email" form:"email" gorm:"email"`
+	Password string `json:"password" form:"password" gorm:"password"`
+}
+
+func (UserLogin) TableName() string {
+	return User{}.TableName()
+}
+
+//func NewAccount(at, rt *tokenprovider.Token) *Account {
+//	return &Account{
+//		AccessToken:  at,
+//		RefreshToken: rt,
+//	}
+//}
+
+var (
+	ErrUsernameOrPasswordInvalid = common.NewCustomError(
+		errors.New("username or password invalid"),
+		"username or password invalid",
+		"ErrUsernameOrPasswordInvalid",
+	)
+)
