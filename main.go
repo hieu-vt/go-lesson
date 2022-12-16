@@ -10,6 +10,7 @@ import (
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
+	"lesson-5-goland/modules/user/usertransport/ginuser"
 	"log"
 	"net/http"
 	"os"
@@ -65,11 +66,17 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
 		})
 	})
 
-	r.POST("/upload", ginupload.UploadFile(appCtx))
-
 	// CRUD
-	// Restaurant
-	restaurants := r.Group("/restaurants")
+	v1 := r.Group("/v1")
+
+	// authorized
+	v1.POST("/register", ginuser.Register(appCtx))
+
+	// upload
+	v1.POST("/upload", ginupload.UploadFile(appCtx))
+
+	// restaurant
+	restaurants := v1.Group("/restaurants")
 	{
 		// create Restaurant
 		restaurants.POST("", ginrestaurent.CreateRestaurant(appCtx))
@@ -87,8 +94,8 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider) error {
 		restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(appCtx))
 	}
 
-	// Like Restaurant
-	likeRestaurants := r.Group("/like")
+	// like Restaurant
+	likeRestaurants := v1.Group("/like")
 	{
 		likeRestaurants.POST("", ginlikerestaurant.LikeOrUnlikeRestaurant(appCtx))
 	}
