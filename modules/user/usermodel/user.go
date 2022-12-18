@@ -5,26 +5,38 @@ import (
 	"lesson-5-goland/common"
 )
 
-type roleType string
+type RoleType string
 
 const (
-	USER    roleType = "user"
-	ADMIN   roleType = "admin"
-	SHIPPER roleType = "shipper"
+	USER    RoleType = "user"
+	ADMIN   RoleType = "admin"
+	SHIPPER RoleType = "shipper"
 )
 
 const EntityName = "Users"
 
 type User struct {
-	common.SqlModel `json:"inline"`
+	common.SqlModel `json:",inline"`
 	Email           string        `json:"email" gorm:"email"`
 	Password        string        `json:"-" gorm:"password"`
 	Salt            string        `json:"-" gorm:"salt"`
 	LastName        string        `json:"last_name" gorm:"last_name"`
 	FirstName       string        `json:"first_name" gorm:"first_name"`
 	Phone           string        `json:"phone" gorm:"phone"`
-	Role            roleType      `json:"role" gorm:"role"`
+	Role            RoleType      `json:"role" gorm:"role"`
 	avatar          *common.Image `json:"avatar" gorm:"avatar"`
+}
+
+func (u *User) GetUserId() int {
+	return u.Id
+}
+
+func (u *User) GetEmail() string {
+	return u.Email
+}
+
+func (u *User) GetRole() string {
+	return string(u.Role)
 }
 
 func (User) TableName() string {
@@ -54,3 +66,7 @@ var (
 		"ErrUsernameOrPasswordInvalid",
 	)
 )
+
+func (data *User) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
+}

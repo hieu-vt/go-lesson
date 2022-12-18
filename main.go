@@ -73,12 +73,13 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 	// authorized
 	v1.POST("/register", ginuser.Register(appCtx))
 	v1.POST("/login", ginuser.Login(appCtx))
+	v1.GET("/profile", middleware.RequiredAuth(appCtx), ginuser.GetProfile(appCtx))
 
 	// upload
 	v1.POST("/upload", ginupload.UploadFile(appCtx))
 
 	// restaurant
-	restaurants := v1.Group("/restaurants")
+	restaurants := v1.Group("/restaurants", middleware.RequiredAuth(appCtx))
 	{
 		// create Restaurant
 		restaurants.POST("", ginrestaurent.CreateRestaurant(appCtx))
@@ -97,7 +98,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 	}
 
 	// like Restaurant
-	likeRestaurants := v1.Group("/like")
+	likeRestaurants := v1.Group("/like", middleware.RequiredAuth(appCtx))
 	{
 		likeRestaurants.POST("", ginlikerestaurant.LikeOrUnlikeRestaurant(appCtx))
 	}

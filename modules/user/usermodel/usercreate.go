@@ -13,7 +13,7 @@ type UserCreate struct {
 	LastName        string        `json:"last_name" gorm:"last_name"`
 	FirstName       string        `json:"first_name" gorm:"first_name"`
 	Phone           string        `json:"phone" gorm:"phone"`
-	Role            roleType      `json:"role" gorm:"role"`
+	Role            RoleType      `json:"role" gorm:"role"`
 	avatar          *common.Image `json:"avatar" gorm:"avatar"`
 }
 

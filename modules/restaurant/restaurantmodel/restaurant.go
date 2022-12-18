@@ -13,6 +13,7 @@ type Restaurant struct {
 	Name            string         `json:"name" gorm:"column:name;"`
 	Addr            string         `json:"addr" gorm:"column:addr;"`
 	Logo            *common.Image  `json:"logo" gorm:"column:logo;""`
+	OwnerId         int            `json:"-" gorm:"column:owner_id;""`
 	Cover           *common.Images `json:"cover" gorm:"column:cover;""`
 	LikeCount       int            `json:"like_count" gorm:"-"`
 }
@@ -38,6 +39,7 @@ type RestaurantCreate struct {
 	Name            string         `json:"name" gorm:"column:name;"`
 	Addr            string         `json:"addr" gorm:"column:addr;"`
 	Logo            *common.Image  `json:"logo" gorm:"column:logo;"`
+	OwnerId         int            `json:"-" gorm:"column:owner_id;"`
 	Cover           *common.Images `json:"cover" gorm:"column:cover;"`
 }
 
