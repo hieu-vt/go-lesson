@@ -95,12 +95,12 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 		// Delete Restaurant
 		restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(appCtx))
-	}
 
-	// like Restaurant
-	likeRestaurants := v1.Group("/like", middleware.RequiredAuth(appCtx))
-	{
-		likeRestaurants.POST("", ginlikerestaurant.LikeOrUnlikeRestaurant(appCtx))
+		// like Restaurant
+		restaurants.POST("/:id/like", ginlikerestaurant.UserLikeRestaurant(appCtx))
+
+		// unlike Restaurant
+		restaurants.DELETE("/:id/unlike", ginlikerestaurant.UserUnLikeRestaurant(appCtx))
 	}
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

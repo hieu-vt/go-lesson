@@ -1,6 +1,10 @@
 package restaurantlikemodel
 
-import "time"
+import (
+	"fmt"
+	"lesson-5-goland/common"
+	"time"
+)
 
 type RestaurantLike struct {
 	RestaurantId int       `json:"restaurant_id" gorm:"column:restaurant_id"`
@@ -19,4 +23,36 @@ type RestaurantCreateLike struct {
 
 func (RestaurantCreateLike) TableName() string {
 	return "restaurant_likes"
+}
+
+func ErrCannotLikeRestaurant(err error) *common.AppError {
+	return common.NewCustomError(
+		err,
+		fmt.Sprintf("Cannot like restaurant"),
+		fmt.Sprintf("ErrCannotLikeRestaurant"),
+	)
+}
+
+func ErrLikeRestaurantExist(err error) *common.AppError {
+	return common.NewCustomError(
+		err,
+		fmt.Sprintf("Like restaurant have been exist"),
+		fmt.Sprintf("ErrLikeRestaurantExist"),
+	)
+}
+
+func ErrCannotUnlikeRestaurant(err error) *common.AppError {
+	return common.NewCustomError(
+		err,
+		fmt.Sprintf("Cannot unlike restaurant"),
+		fmt.Sprintf("ErrCannotUnlikeRestaurant"),
+	)
+}
+
+func ErrLikeRestaurantDidLikeThisRestaurant(err error) *common.AppError {
+	return common.NewCustomError(
+		err,
+		fmt.Sprintf("User did like restaurant before"),
+		fmt.Sprintf("ErrLikeRestaurantDidLikeThisRestaurant"),
+	)
 }

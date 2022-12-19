@@ -4,7 +4,6 @@ import (
 	"context"
 	"lesson-5-goland/common"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
-	"log"
 )
 
 type ListRestaurantLikeStore interface {
@@ -41,23 +40,23 @@ func (repository *listRestaurantRepository) ListDataRestaurant(ctx context.Conte
 		return nil, err
 	}
 
-	ids := make([]int, len(result))
-
-	for i := range result {
-		ids[i] = result[i].Id
-	}
-
-	rLikeIds, err := repository.likeStore.GetRestaurantLike(ctx, ids)
-
-	if err != nil {
-		log.Println("cannot get likes restaurant")
-	}
-
-	if v := rLikeIds; v != nil {
-		for i, item := range result {
-			result[i].LikeCount = rLikeIds[item.Id]
-		}
-	}
+	//ids := make([]int, len(result))
+	//
+	//for i := range result {
+	//	ids[i] = result[i].Id
+	//}
+	//
+	//rLikeIds, err := repository.likeStore.GetRestaurantLike(ctx, ids)
+	//
+	//if err != nil {
+	//	log.Println("cannot get likes restaurant")
+	//}
+	//
+	//if v := rLikeIds; v != nil {
+	//	for i, item := range result {
+	//		result[i].LikeCount = rLikeIds[item.Id]
+	//	}
+	//}
 
 	return result, nil
 }

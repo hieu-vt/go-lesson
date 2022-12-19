@@ -10,37 +10,41 @@ import (
 type LikeRestaurantStore interface {
 	CreateLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error
 	FindLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) (bool, error)
-	DeleteLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error
+}
+
+type InCreateLikeRestaurantStore interface {
+	InCreateLikeCount(ctx context.Context, restaurantId int) error
 }
 
 type likeRestaurantBiz struct {
 	store LikeRestaurantStore
+
+	restaurantStore InCreateLikeRestaurantStore
 }
 
-func NewLikeRestaurantStore(store LikeRestaurantStore) *likeRestaurantBiz {
-	return &likeRestaurantBiz{store: store}
+func NewLikeRestaurantStore(store LikeRestaurantStore, restaurantStore InCreateLikeRestaurantStore) *likeRestaurantBiz {
+	return &likeRestaurantBiz{store: store, restaurantStore: restaurantStore}
 }
 
-func (biz *likeRestaurantBiz) CreateLikeOrUnlikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error {
+func (biz *likeRestaurantBiz) UserLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error {
 	isExist, errFind := biz.store.FindLikeRestaurant(ctx, data)
 
 	if errFind != nil {
 		log.Println("cannot find like before", errFind)
 	}
 
-	if !isExist {
-		err := biz.store.CreateLikeRestaurant(ctx, data)
-
-		if err != nil {
-			return common.ErrInvalidRequest(err)
-		}
-	} else {
-		err := biz.store.DeleteLikeRestaurant(ctx, data)
-
-		if err != nil {
-			return common.ErrInvalidRequest(err)
-		}
+	if isExist {
+		return restaurantlikemodel.ErrLikeRestaurantExist(errFind)
 	}
+
+	if err := biz.store.CreateLikeRestaurant(ctx, data); err != nil {
+		return restaurantlikemodel.ErrCannotLikeRestaurant(err)
+	}
+
+	go func() {
+		defer common.AppRecover()
+		_ = biz.restaurantStore.InCreateLikeCount(ctx, data.RestaurantId)
+	}()
 
 	return nil
 }
