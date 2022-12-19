@@ -2,7 +2,7 @@ package restaurantlikebiz
 
 import (
 	"context"
-	"lesson-5-goland/common"
+	"lesson-5-goland/component/asyncjob"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
 )
 
@@ -35,10 +35,17 @@ func (biz *unlikeRestaurantBiz) UserUnlikeRestaurant(ctx context.Context, data *
 		return restaurantlikemodel.ErrCannotUnlikeRestaurant(err)
 	}
 
-	go func() {
-		defer common.AppRecover()
-		biz.deCreateStore.DeCreateLikeCount(ctx, data.RestaurantId)
-	}()
+	//go func() {
+	//	defer common.AppRecover()
+	//	biz.deCreateStore.DeCreateLikeCount(ctx, data.RestaurantId)
+	//}()
+
+	// side effect
+	job := asyncjob.NewJob(func(ctx context.Context) error {
+		return biz.deCreateStore.DeCreateLikeCount(ctx, data.RestaurantId)
+	})
+
+	asyncjob.NewGroup(true, job).Run(ctx)
 
 	return nil
 }
