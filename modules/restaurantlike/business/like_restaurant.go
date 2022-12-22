@@ -2,8 +2,9 @@ package restaurantlikebiz
 
 import (
 	"context"
-	"lesson-5-goland/component/asyncjob"
+	"lesson-5-goland/common"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
+	"lesson-5-goland/pubsub"
 	"log"
 )
 
@@ -12,18 +13,28 @@ type LikeRestaurantStore interface {
 	FindLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) (bool, error)
 }
 
-type InCreateLikeRestaurantStore interface {
-	InCreateLikeCount(ctx context.Context, restaurantId int) error
-}
+//type InCreateLikeRestaurantStore interface {
+//	InCreateLikeCount(ctx context.Context, restaurantId int) error
+//}
 
 type likeRestaurantBiz struct {
 	store LikeRestaurantStore
 
-	restaurantStore InCreateLikeRestaurantStore
+	//restaurantStore InCreateLikeRestaurantStore
+
+	pubsub pubsub.Pubsub
 }
 
-func NewLikeRestaurantStore(store LikeRestaurantStore, restaurantStore InCreateLikeRestaurantStore) *likeRestaurantBiz {
-	return &likeRestaurantBiz{store: store, restaurantStore: restaurantStore}
+func NewLikeRestaurantStore(
+	store LikeRestaurantStore,
+	//restaurantStore InCreateLikeRestaurantStore
+	pubsub pubsub.Pubsub,
+) *likeRestaurantBiz {
+	return &likeRestaurantBiz{
+		store: store,
+		//restaurantStore: restaurantStore,
+		pubsub: pubsub,
+	}
 }
 
 func (biz *likeRestaurantBiz) UserLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error {
@@ -53,11 +64,13 @@ func (biz *likeRestaurantBiz) UserLikeRestaurant(ctx context.Context, data *rest
 	//}()
 
 	// side effect
-	job := asyncjob.NewJob(func(ctx context.Context) error {
-		return biz.restaurantStore.InCreateLikeCount(ctx, data.RestaurantId)
-	})
+	//job := asyncjob.NewJob(func(ctx context.Context) error {
+	//	return biz.restaurantStore.InCreateLikeCount(ctx, data.RestaurantId)
+	//})
+	//
+	//_ = asyncjob.NewGroup(true, job).Run(ctx)
 
-	_ = asyncjob.NewGroup(true, job).Run(ctx)
+	biz.pubsub.Publish(ctx, common.TopicUserLikeRestaurant, pubsub.NewMessage(data))
 
 	return nil
 }

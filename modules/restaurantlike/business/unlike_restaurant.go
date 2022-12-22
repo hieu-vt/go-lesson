@@ -2,8 +2,9 @@ package restaurantlikebiz
 
 import (
 	"context"
-	"lesson-5-goland/component/asyncjob"
+	"lesson-5-goland/common"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
+	"lesson-5-goland/pubsub"
 )
 
 type UnlikeRestaurantStore interface {
@@ -11,17 +12,26 @@ type UnlikeRestaurantStore interface {
 	FindLikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) (bool, error)
 }
 
-type DeCreateLikeRestaurantStore interface {
-	DeCreateLikeCount(ctx context.Context, restaurantId int) error
-}
+//type DeCreateLikeRestaurantStore interface {
+//	DeCreateLikeCount(ctx context.Context, restaurantId int) error
+//}
 
 type unlikeRestaurantBiz struct {
-	store         UnlikeRestaurantStore
-	deCreateStore DeCreateLikeRestaurantStore
+	store UnlikeRestaurantStore
+	//deCreateStore DeCreateLikeRestaurantStore
+	pubsub pubsub.Pubsub
 }
 
-func NewUnlikeRestaurantStore(store UnlikeRestaurantStore, deCreateStore DeCreateLikeRestaurantStore) *unlikeRestaurantBiz {
-	return &unlikeRestaurantBiz{store: store, deCreateStore: deCreateStore}
+func NewUnlikeRestaurantStore(
+	store UnlikeRestaurantStore,
+	//deCreateStore DeCreateLikeRestaurantStore,
+	pubsub pubsub.Pubsub,
+) *unlikeRestaurantBiz {
+	return &unlikeRestaurantBiz{
+		store: store,
+		//deCreateStore: deCreateStore,
+		pubsub: pubsub,
+	}
 }
 
 func (biz *unlikeRestaurantBiz) UserUnlikeRestaurant(ctx context.Context, data *restaurantlikemodel.RestaurantCreateLike) error {
@@ -41,11 +51,12 @@ func (biz *unlikeRestaurantBiz) UserUnlikeRestaurant(ctx context.Context, data *
 	//}()
 
 	// side effect
-	job := asyncjob.NewJob(func(ctx context.Context) error {
-		return biz.deCreateStore.DeCreateLikeCount(ctx, data.RestaurantId)
-	})
-
-	asyncjob.NewGroup(true, job).Run(ctx)
+	//job := asyncjob.NewJob(func(ctx context.Context) error {
+	//	return biz.deCreateStore.DeCreateLikeCount(ctx, data.RestaurantId)
+	//})
+	//
+	//asyncjob.NewGroup(true, job).Run(ctx)
+	biz.pubsub.Publish(ctx, common.TopicUserDislikeRestaurant, pubsub.NewMessage(data))
 
 	return nil
 }

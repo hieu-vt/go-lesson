@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
-	"lesson-5-goland/modules/restaurant/restaurantstorage"
 	restaurantlikebiz "lesson-5-goland/modules/restaurantlike/business"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
 	restaurantlikestorage "lesson-5-goland/modules/restaurantlike/storage"
@@ -27,8 +26,8 @@ func UserUnLikeRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		data.UserId = requester.GetUserId()
 
 		store := restaurantlikestorage.NewSqlStore(appCtx.GetMainDBConnection())
-		deCreateLikeRestaurant := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := restaurantlikebiz.NewUnlikeRestaurantStore(store, deCreateLikeRestaurant)
+		//deCreateLikeRestaurant := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
+		biz := restaurantlikebiz.NewUnlikeRestaurantStore(store, appCtx.GetPubsub())
 
 		if err := biz.UserUnlikeRestaurant(c, &data); err != nil {
 			panic(err)

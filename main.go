@@ -11,6 +11,8 @@ import (
 	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
 	"lesson-5-goland/modules/user/usertransport/ginuser"
+	"lesson-5-goland/pubsub/pubsublocal"
+	"lesson-5-goland/subscriber"
 	"log"
 	"net/http"
 	"os"
@@ -58,8 +60,13 @@ func main() {
 }
 
 func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
-	appCtx := component.NewAppContext(db, provider, secretKey)
+	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub())
 	r := gin.Default()
+	engine := subscriber.NewEngine(appCtx)
+
+	engine.Start()
+
+	//subscriber.IncreaseLikeCountAfterUserLikeRestaurant(appCtx, context.Background())
 	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
