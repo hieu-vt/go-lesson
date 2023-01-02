@@ -1,0 +1,57 @@
+<!doctype html>
+<head>
+    <title>Demo socket 200lab </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
+</head>
+
+<body>
+<div id="main">
+    <h1>Demo Socket shipper online</h1>
+</div>
+
+<script>
+    const socket = io("", {transports: ['websocket']});
+    var locTimer = null;
+    var timeDisconnect = 0
+
+    socket.on('connect', () => {
+        console.log('Client connected');
+
+        socket.emit('test', 'Hello server');
+
+        //
+        // socket.emit('notice', {name: "Viet Tran",age: 32});
+        // // Emit token
+        socket.emit('EvenAuthenticated', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjQsInJvbGUiOiJzaGlwcGVyIn0sImV4cCI6MTY3NTM5OTc0OCwiaWF0IjoxNjcyODA3NzQ4fQ.lAhxyUWGdByrswWVXNe9aqT4UAkDkeygd3idlXZ0GwU');
+
+
+    })
+
+    socket.on('EmitAuthenticated', (msg) => {
+        console.log('authenticated', msg)
+
+        socket.on("OrderTracking", data => {
+            console.log("on - OrderTracking", data)
+            // socket.emit("OrderTracking", {type: "Receiving_Order"});
+        });
+    });
+
+    socket.on('authentication_failed', (msg) => console.log('authentication_failed:', msg));
+    // socket.on('NoteCreated', (msg) => console.log('NoteCreated', msg));
+
+
+    socket.on('disconnect', () => {
+        if(timeDisconnect > 10) {
+            socket.close()
+            console.log('closed: ',timeDisconnect)
+            return;
+        }
+        timeDisconnect++;
+        console.log('Socket is disconnected: ', timeDisconnect)
+
+    })
+
+</script>
+</body>
+
+</html>

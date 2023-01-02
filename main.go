@@ -64,15 +64,15 @@ func main() {
 func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
 	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub())
 	r := gin.Default()
-	engine := subscriber.NewEngine(appCtx)
-
-	engine.Start()
 
 	rtEngine := skio.NewEngine()
-
 	if err := rtEngine.Run(appCtx, r); err != nil {
 		log.Fatalln(err)
 	}
+
+	engine := subscriber.NewEngine(appCtx, rtEngine)
+
+	engine.Start()
 
 	//subscriber.IncreaseLikeCountAfterUserLikeRestaurant(appCtx, context.Background())
 	r.Use(middleware.Recover(appCtx))
@@ -84,6 +84,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 	// CRUD
 	r.StaticFile("/demo/", "./demo.html")
+	r.StaticFile("/demo/shipper", "./demoshipper.html")
 	v1 := r.Group("/v1")
 
 	// authorized

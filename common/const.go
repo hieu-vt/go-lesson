@@ -16,3 +16,15 @@ type Requester interface {
 	GetEmail() string
 	GetRole() string
 }
+
+const (
+	EmitUserCreateOrderSuccess = "EmitUserCreateOrderSuccess"
+	EmitUserOrderFailure       = "EmitUserOrderFailure"
+	EmitAuthenticated          = "EmitAuthenticated"
+)
+
+const (
+	EvenAuthenticated       = "EvenAuthenticated"
+	EvenUserCreateOrder     = "EvenUserCreateOrder"
+	EventUserUpdateLocation = "EventUserUpdateLocation"
+)

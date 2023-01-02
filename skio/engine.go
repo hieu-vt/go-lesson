@@ -9,8 +9,10 @@ import (
 	"github.com/googollee/go-socket.io/engineio"
 	"github.com/googollee/go-socket.io/engineio/transport"
 	"github.com/googollee/go-socket.io/engineio/transport/websocket"
+	"lesson-5-goland/common"
 	"lesson-5-goland/component"
 	"lesson-5-goland/component/tokenprovider/jwt"
+	"lesson-5-goland/modules/order/ordertransport/skorder"
 	"lesson-5-goland/modules/user/userstorage"
 	"lesson-5-goland/modules/user/usertransport/skuser"
 	"sync"
@@ -20,6 +22,7 @@ type RealtimeEngine interface {
 	UserSockets(userId int) []AppSocket
 	EmitToRoom(room string, key string, data interface{}) error
 	EmitToUser(userId int, key string, data interface{}) error
+	JoinRoom(userId int, room string) error
 	Run(ctx component.AppContext, engine *gin.Engine) error
 	//Emit(userId int) error
 }
@@ -87,14 +90,33 @@ func (engine *rtEngine) EmitToRoom(room string, key string, data interface{}) er
 	return nil
 }
 
+func (engine *rtEngine) OnEvent(userId int, key string, f interface{}) error {
+	engine.server.OnEvent("/", key, f)
+
+	return nil
+}
+
 func (engine *rtEngine) EmitToUser(userId int, key string, data interface{}) error {
 	sockets := engine.getAppSocket(userId)
-
 	for _, s := range sockets {
 		s.Emit(key, data)
 	}
 
 	return nil
+}
+
+func (engine *rtEngine) JoinRoom(userId int, room string) error {
+	sockets := engine.getAppSocket(userId)
+
+	for _, s := range sockets {
+		s.Join(room)
+	}
+
+	return nil
+}
+
+func (engine *rtEngine) GetShipper() int {
+	return 4
 }
 
 func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
@@ -120,7 +142,7 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 
 	// Setup
 
-	server.OnEvent("/", "authenticate", func(s socketio.Conn, token string) {
+	server.OnEvent("/", common.EvenAuthenticated, func(s socketio.Conn, token string) {
 		db := appCtx.GetMainDBConnection()
 		store := userstorage.NewSqlStore(db)
 
@@ -152,14 +174,16 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 		appSck := NewAppSocket(s, user)
 		engine.saveAppSocket(user.Id, appSck)
 
-		s.Emit("authenticated", user)
+		s.Emit(common.EmitAuthenticated, user)
 
 		//appSck.Join(user.GetRole()) // the same
 		//if user.GetRole() == "admin" {
 		//	appSck.Join("admin")
 		//}
 
-		server.OnEvent("/", "UserUpdateLocation", skuser.OnUserUpdateLocation(appCtx, user))
+		server.OnEvent("/", common.EventUserUpdateLocation, skuser.OnUserUpdateLocation(appCtx, user))
+		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine.GetShipper()))
+		server.OnEvent("/", "OrderTracking", skorder.OnOrderTracking(appCtx, user))
 	})
 
 	go server.Serve()

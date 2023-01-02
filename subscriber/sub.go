@@ -6,6 +6,7 @@ import (
 	"lesson-5-goland/component"
 	"lesson-5-goland/component/asyncjob"
 	"lesson-5-goland/pubsub"
+	"lesson-5-goland/skio"
 	"log"
 )
 
@@ -15,11 +16,12 @@ type consumerJob struct {
 }
 
 type consumerEngine struct {
-	appCtx component.AppContext
+	appCtx   component.AppContext
+	rtEngine skio.RealtimeEngine
 }
 
-func NewEngine(appCtx component.AppContext) *consumerEngine {
-	return &consumerEngine{appCtx: appCtx}
+func NewEngine(appCtx component.AppContext, rtEngine skio.RealtimeEngine) *consumerEngine {
+	return &consumerEngine{appCtx: appCtx, rtEngine: rtEngine}
 }
 
 func (engine *consumerEngine) Start() error {
@@ -57,6 +59,16 @@ func (engine *consumerEngine) Start() error {
 		common.TopicUserDislikeRestaurant,
 		true,
 		DeCreateLikeCountAfterUserDislikeRestaurant(engine.appCtx),
+	)
+
+	engine.startSubTopic(common.TopicHandleOrderWhenUserOrderFood,
+		true,
+		HandleOrderAfterClientOrder(engine.appCtx),
+	)
+
+	engine.startSubTopic(common.TopicEmitEvenWhenUserCreateOrderSuccess,
+		false,
+		EmitRealtimeAfterOrderEnd(engine.appCtx, engine.rtEngine),
 	)
 
 	return nil
