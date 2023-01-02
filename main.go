@@ -7,6 +7,7 @@ import (
 	"lesson-5-goland/component"
 	"lesson-5-goland/component/uploadprovider"
 	"lesson-5-goland/middleware"
+	"lesson-5-goland/modules/food/foodtransport/ginfood"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
@@ -116,6 +117,12 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 		// unlike Restaurant
 		restaurants.DELETE("/:id/unlike", ginlikerestaurant.UserUnLikeRestaurant(appCtx))
+	}
+
+	// food
+	foods := v1.Group("/foods", middleware.RequiredAuth(appCtx))
+	{
+		foods.POST("", ginfood.CreateFood(appCtx))
 	}
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

@@ -44,7 +44,6 @@ func (biz *registerBiz) Register(ctx context.Context, data *usermodel.UserCreate
 	data.Status = 1
 	data.Salt = common.GenSalt(20)
 	data.Password = biz.hasher.Hash(data.Password + data.Salt)
-	data.Role = usermodel.USER
 
 	if err := biz.store.CreateUser(ctx, data); err != nil {
 		return nil, usermodel.ErrUsernameOrPasswordInvalid
