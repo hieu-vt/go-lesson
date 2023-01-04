@@ -116,7 +116,7 @@ func (engine *rtEngine) JoinRoom(userId int, room string) error {
 }
 
 func (engine *rtEngine) GetShipper() int {
-	return 4
+	return 2
 }
 
 func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
@@ -183,7 +183,7 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 
 		server.OnEvent("/", common.EventUserUpdateLocation, skuser.OnUserUpdateLocation(appCtx, user))
 		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine.GetShipper()))
-		server.OnEvent("/", "OrderTracking", skorder.OnOrderTracking(appCtx, user))
+		server.OnEvent("/", common.OrderTracking, skorder.OnOrderTracking(appCtx, user, engine))
 	})
 
 	go server.Serve()

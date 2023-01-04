@@ -6,18 +6,11 @@ import (
 	"lesson-5-goland/component"
 	"lesson-5-goland/modules/order/ordermodel"
 	"lesson-5-goland/modules/order/orderstorage"
+	"lesson-5-goland/modules/order/ordertransport/skorder"
 	"lesson-5-goland/pubsub"
 )
 
-type TopicEmitEvenOrderMessageData struct {
-	OrderId   string `json:"orderId"`
-	ShipperId int    `json:"shipperId"`
-	UserId    int    `json:"userId"`
-}
-
-type HasTotalPrice interface {
-	GetTotalPrice() float64
-}
+type TrackingType string
 
 func HandleOrderAfterClientOrder(appCtx component.AppContext) consumerJob {
 	return consumerJob{
@@ -36,10 +29,11 @@ func HandleOrderAfterClientOrder(appCtx component.AppContext) consumerJob {
 			orderData.Mask(false)
 
 			pub := appCtx.GetPubsub()
-			pub.Publish(c, common.TopicEmitEvenWhenUserCreateOrderSuccess, pubsub.NewMessage(TopicEmitEvenOrderMessageData{
+			pub.Publish(c, common.TopicEmitEvenWhenUserCreateOrderSuccess, pubsub.NewMessage(skorder.TopicEmitEvenOrderMessageData{
 				OrderId:   orderData.FakeId.String(),
 				ShipperId: orderData.ShipperId,
 				UserId:    orderData.UserId,
+				Type:      common.OrderStart,
 			}))
 
 			return nil

@@ -2,68 +2,57 @@
 <head>
     <title>Demo socket 200lab </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
 <div id="main">
     <h1>Demo Socket IO</h1>
+    <button type="button" class="btn btn-primary" onclick="onStartOrder()">Order</button>
 </div>
 
 <script>
     const socket = io("", {transports: ['websocket']});
-    var locTimer = null;
     var timeDisconnect = 0
+
+    const onStartOrder = () => {
+        console.log("Start Order...")
+        socket.emit("EvenUserCreateOrder", {
+            totalPrice: 101
+        })
+    }
 
     socket.on('connect', () => {
         console.log('Client connected');
-
-        socket.emit('test', 'Hello server');
-
-        //
-        // socket.emit('notice', {name: "Viet Tran",age: 32});
-        // // Emit token
-        socket.emit('EvenAuthenticated', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjMsInJvbGUiOiJ1c2VyIn0sImV4cCI6MTY3NTM5OTY5MCwiaWF0IjoxNjcyODA3NjkwfQ.yGuiL1AdyGm1tOE5QMFSVddgG90Pkc84EMHQLjTDrQE');
+        socket.emit(
+            'EvenAuthenticated',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjEsInJvbGUiOiJ1c2VyIn0sImV4cCI6MTY3NTQzNjExMCwiaWF0IjoxNjcyODQ0MTEwfQ.JgXF46QnUTRMBs4EGuIkJIBgfFejTt2Bgo6C0YaV1NU'
+        );
     })
-
-    // socket.on('authenticated', () => {
-    //
-    // })
-
-    socket.on('test', (msg) => console.log("test", msg));
-    socket.on('notice', (p) => console.log("notice:",p));
-
     socket.on('EmitAuthenticated', (msg) => {
         console.log('authenticated', msg)
-
-        if (locTimer != null) {
-            clearInterval(locTimer)
-        }
-        //
-        // locTimer = setInterval(() => {
-        //     socket.emit('UserUpdateLocation', {lat: 10.7900422 + Math.random(), lng: 106.6623443 + Math.random()})
-        // }, 3000)
-        socket.on("EmitUserCreateOrderSuccess", async (data) => {
-            console.log(data);
-        })
-
         socket.on("OrderTracking", data => {
             console.log("EmitOrderTracking", data)
-        });
 
-        setTimeout(() => {
-            console.log("I am calling")
-            socket.emit("EvenUserCreateOrder", {
-                totalPrice: 101
-            })
-        }, 5000)
+            if (data.type === "OrderProcess") {
+                console.log("Shipper accept your order!")
+            }
+
+            if (data.type === "OrderSuccessfully") {
+                console.log("Receiver package success!")
+            }
+
+            if (data.type === "OrderSuccessfully") {
+                console.log("Receiver package success!")
+            }
+        });
     });
 
-    socket.on('your_profile', (msg) => console.log('your profile:', msg));
     socket.on('authentication_failed', (msg) => console.log('authentication_failed:', msg));
-    // socket.on('NoteCreated', (msg) => console.log('NoteCreated', msg));
-    socket.on('TopicUserLikeRestaurant', (data) => console.log('TopicUserLikeRestaurant:', data))
-
-
     socket.on('disconnect', () => {
         if(timeDisconnect > 10) {
             socket.close()

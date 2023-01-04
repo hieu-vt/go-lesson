@@ -2,11 +2,12 @@ package subscriber
 
 import (
 	"context"
+	"lesson-5-goland/common"
 	"lesson-5-goland/component"
+	"lesson-5-goland/modules/order/ordertransport/skorder"
 	"lesson-5-goland/pubsub"
 	"lesson-5-goland/skio"
 	"log"
-	"time"
 )
 
 type DataEmitCreateSuccessOrder struct {
@@ -17,17 +18,13 @@ func EmitRealtimeAfterOrderEnd(appCtx component.AppContext, rtEngine skio.Realti
 	return consumerJob{
 		Title: "Emit realtime after order end !",
 		Hld: func(c context.Context, message *pubsub.Message) error {
-			data := message.Data().(TopicEmitEvenOrderMessageData)
+			data := message.Data().(skorder.TopicEmitEvenOrderMessageData)
 
 			log.Println(data.ShipperId, data.UserId)
 
-			//rtEngine.EmitToUser(data.UserId, "OrderTracking", data)
-			roomKey := "orders/" + data.OrderId
+			roomKey := common.OrderTracking + data.OrderId
 			rtEngine.JoinRoom(data.UserId, roomKey)
-			time.Sleep(time.Second)
-			//rtEngine.JoinRoom(data.ShipperId, roomKey)
-			time.Sleep(time.Second)
-			rtEngine.EmitToRoom(roomKey, "OrderTracking", data)
+			rtEngine.EmitToUser(data.ShipperId, common.OrderTracking, data)
 			return nil
 		},
 	}

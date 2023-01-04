@@ -28,3 +28,17 @@ const (
 	EvenUserCreateOrder     = "EvenUserCreateOrder"
 	EventUserUpdateLocation = "EventUserUpdateLocation"
 )
+
+const (
+	OrderTracking = "OrderTracking"
+)
+
+type TrackingType string
+
+const (
+	OrderStart         TrackingType = "OrderStart"
+	OrderShipperAccept TrackingType = "OrderShipperAccept"
+	OrderShipperReject TrackingType = "OrderShipperReject"
+	OrderProcess       TrackingType = "OrderProcess"
+	OrderSuccessfully  TrackingType = "OrderSuccessfully"
+)
