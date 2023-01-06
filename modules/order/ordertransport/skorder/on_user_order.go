@@ -7,6 +7,7 @@ import (
 	"lesson-5-goland/component"
 	"lesson-5-goland/modules/order/ordermodel"
 	pubsub2 "lesson-5-goland/pubsub"
+	"lesson-5-goland/reddit"
 	"log"
 )
 
@@ -16,6 +17,7 @@ type DataOrder struct {
 
 type RealtimeEngine interface {
 	EmitToRoom(room string, key string, data interface{}) error
+	GetShipper(reddit reddit.RedditEngine, id int, location interface{}) int
 }
 
 type TopicEmitEvenOrderMessageData struct {
@@ -25,9 +27,12 @@ type TopicEmitEvenOrderMessageData struct {
 	Type      common.TrackingType `json:"type"`
 }
 
-func OnUserOrder(appCtx component.AppContext, requester common.Requester, shipperId int) func(s socketio.Conn, data DataOrder) {
+func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngine RealtimeEngine) func(s socketio.Conn, data DataOrder) {
 	return func(s socketio.Conn, data DataOrder) {
 		pubsub := appCtx.GetPubsub()
+		reddit := appCtx.GetReddit()
+
+		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(requester.GetUserId()))
 
 		pubsub.Publish(context.Background(), common.TopicHandleOrderWhenUserOrderFood, pubsub2.NewMessage(ordermodel.Order{
 			TotalPrice: data.TotalPrice,

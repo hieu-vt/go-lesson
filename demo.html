@@ -18,6 +18,7 @@
 <script>
     const socket = io("", {transports: ['websocket']});
     var timeDisconnect = 0
+    let intervalLocation = null
 
     const onStartOrder = () => {
         console.log("Start Order...")
@@ -30,7 +31,7 @@
         console.log('Client connected');
         socket.emit(
             'EvenAuthenticated',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjEsInJvbGUiOiJ1c2VyIn0sImV4cCI6MTY3NTQzNjExMCwiaWF0IjoxNjcyODQ0MTEwfQ.JgXF46QnUTRMBs4EGuIkJIBgfFejTt2Bgo6C0YaV1NU'
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjMsInJvbGUiOiJ1c2VyIn0sImV4cCI6MTY3NTUwMjkwMiwiaWF0IjoxNjcyOTEwOTAyfQ.Tkzydpc3orpEjGNQZnkRvbjUm2eISnawSBeynKp-q7A'
         );
     })
     socket.on('EmitAuthenticated', (msg) => {
@@ -50,6 +51,14 @@
                 console.log("Receiver package success!")
             }
         });
+
+        if (intervalLocation) {
+            clearInterval(intervalLocation)
+        }
+
+        intervalLocation = setInterval(() => {
+            socket.emit("EventUserUpdateLocation", {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
+        }, 3000)
     });
 
     socket.on('authentication_failed', (msg) => console.log('authentication_failed:', msg));

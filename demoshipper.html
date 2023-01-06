@@ -21,6 +21,7 @@
     const socket = io("", {transports: ['websocket']});
     let timeDisconnect = 0;
     let dataOrder = null
+    let intervalLocation = null
 
     const onClickAcceptOrder = () => {
         console.log("Shipper Accept order", dataOrder.type);
@@ -43,12 +44,16 @@
         }
     }
 
+    const randomLocation = (max, min) => {
+        return Math.floor(Math.random() * (max - min)) + min
+    }
+
 
     socket.on('connect', () => {
         console.log('Client connected');
         socket.emit(
             'EvenAuthenticated',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjIsInJvbGUiOiJzaGlwcGVyIn0sImV4cCI6MTY3NTQzNjA1MywiaWF0IjoxNjcyODQ0MDUzfQ.kfxRX5WyAa5oQk6rIXOidcDL8ty42XIfaOp9Lbp_j6w'
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjQsInJvbGUiOiJzaGlwcGVyIn0sImV4cCI6MTY3NTU4MDQxOCwiaWF0IjoxNjcyOTg4NDE4fQ.U8nKvgayWOzzQWkT5Mj0Ph5az9pc0JLdhJMzpimilug'
         );
     })
 
@@ -62,6 +67,14 @@
                 console.log("Receiver package success!")
             }
         });
+
+        if (intervalLocation) {
+            clearInterval(intervalLocation)
+        }
+
+        intervalLocation = setInterval(() => {
+            socket.emit("EventUserUpdateLocation", {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
+        }, 3000)
     });
 
     socket.on('authentication_failed', (msg) => console.log('authentication_failed:', msg));

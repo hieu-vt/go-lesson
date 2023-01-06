@@ -13,6 +13,7 @@ import (
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
 	"lesson-5-goland/modules/user/usertransport/ginuser"
 	"lesson-5-goland/pubsub/pubsublocal"
+	"lesson-5-goland/reddit"
 	"lesson-5-goland/skio"
 	"lesson-5-goland/subscriber"
 	"log"
@@ -62,7 +63,7 @@ func main() {
 }
 
 func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
-	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub())
+	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub(), reddit.NewRedditEngine())
 	r := gin.Default()
 
 	rtEngine := skio.NewEngine()

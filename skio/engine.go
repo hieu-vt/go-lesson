@@ -13,9 +13,14 @@ import (
 	"lesson-5-goland/component"
 	"lesson-5-goland/component/tokenprovider/jwt"
 	"lesson-5-goland/modules/order/ordertransport/skorder"
+	"lesson-5-goland/modules/user/usermodel"
 	"lesson-5-goland/modules/user/userstorage"
 	"lesson-5-goland/modules/user/usertransport/skuser"
+	"lesson-5-goland/reddit"
+	"log"
+	"math"
 	"sync"
+	"time"
 )
 
 type RealtimeEngine interface {
@@ -24,6 +29,7 @@ type RealtimeEngine interface {
 	EmitToUser(userId int, key string, data interface{}) error
 	JoinRoom(userId int, room string) error
 	Run(ctx component.AppContext, engine *gin.Engine) error
+	GetShipper(reddit reddit.RedditEngine, id int, location interface{}) int
 	//Emit(userId int) error
 }
 
@@ -115,8 +121,103 @@ func (engine *rtEngine) JoinRoom(userId int, room string) error {
 	return nil
 }
 
-func (engine *rtEngine) GetShipper() int {
-	return 2
+//:::    optional: unit = the unit you desire for results                     :::
+//:::           where: 'M' is statute miles (default, or omitted)             :::
+//:::                  'K' is kilometers                                      :::
+//:::                  'N' is nautical miles                                  :::
+//:::
+
+func calculatorDistance(lat1 float64, lng1 float64, lat2 float64, lng2 float64, unit ...string) float64 {
+	radlat1 := float64(math.Pi * lat1 / 180)
+	radlat2 := float64(math.Pi * lat2 / 180)
+
+	theta := float64(lng1 - lng2)
+	radtheta := float64(math.Pi * theta / 180)
+
+	dist := math.Sin(radlat1)*math.Sin(radlat2) + math.Cos(radlat1)*math.Cos(radlat2)*math.Cos(radtheta)
+	if dist > 1 {
+		dist = 1
+	}
+
+	dist = math.Acos(dist)
+	dist = dist * 180 / math.Pi
+	dist = dist * 60 * 1.1515
+
+	if len(unit) > 0 {
+		if unit[0] == "K" {
+			dist = dist * 1.609344
+		} else if unit[0] == "N" {
+			dist = dist * 0.8684
+		}
+	}
+
+	return dist
+}
+
+func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location interface{}) int {
+	userLocation := skuser.LocationData{Lat: 117.1, Lng: 4.01}
+	//distanceAround := 5 // KM
+	var minDistance float64
+	minDistance = 0
+	var shipperId int
+	isSecondCheck := false
+	i := 4
+
+	for {
+		if i > len(engine.storage)-1 {
+			isSecondCheck = true
+
+			if isSecondCheck {
+				return shipperId
+			}
+		}
+
+		if isSecondCheck {
+			i = 0
+			currentUser := engine.storage[i][0]
+			log.Println(currentUser)
+			log.Println(currentUser.GetUserId())
+			log.Println(id)
+			log.Println(string(usermodel.SHIPPER))
+			log.Println(reddit.Get(currentUser.GetUserId()))
+
+			if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
+				shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
+				distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+
+				if i == 0 {
+					minDistance = distance
+					shipperId = currentUser.GetUserId()
+				}
+
+				if minDistance > distance {
+					minDistance = distance
+					shipperId = currentUser.GetUserId()
+				}
+			}
+		} else {
+
+			currentUser := engine.storage[i]
+			log.Println(currentUser)
+			//log.Println(currentUser.GetUserId())
+			//log.Println(currentUser.GetRole())
+			//log.Println(id)
+			//log.Println(string(usermodel.SHIPPER))
+			//log.Println(reddit.Get(currentUser.GetUserId()))
+			//if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
+			//	shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
+			//	distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+			//
+			//	if distance < float64(distanceAround) {
+			//		shipperId = currentUser.GetUserId()
+			//		return shipperId
+			//	}
+			//}
+		}
+		i++
+	}
+
+	return shipperId
 }
 
 func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
@@ -141,7 +242,6 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 	})
 
 	// Setup
-
 	server.OnEvent("/", common.EvenAuthenticated, func(s socketio.Conn, token string) {
 		db := appCtx.GetMainDBConnection()
 		store := userstorage.NewSqlStore(db)
@@ -182,8 +282,11 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 		//}
 
 		server.OnEvent("/", common.EventUserUpdateLocation, skuser.OnUserUpdateLocation(appCtx, user))
-		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine.GetShipper()))
+		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine))
 		server.OnEvent("/", common.OrderTracking, skorder.OnOrderTracking(appCtx, user, engine))
+
+		time.Sleep(time.Second * 5)
+		engine.GetShipper(appCtx.GetReddit(), 3, skuser.LocationData{Lat: 117, Lng: 4})
 	})
 
 	go server.Serve()
