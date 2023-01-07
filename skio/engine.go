@@ -160,23 +160,19 @@ func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location 
 	minDistance = 0
 	var shipperId int
 	isSecondCheck := false
-	i := 4
 
 	for {
 		for _, user := range engine.storage {
 			if isSecondCheck {
-				i = 0
 				currentUser := user[0]
 				if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
 					shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
 					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
 
-					if i == 0 {
+					if minDistance == 0 {
 						minDistance = distance
 						shipperId = currentUser.GetUserId()
-					}
-
-					if minDistance > distance {
+					} else if minDistance > distance {
 						minDistance = distance
 						shipperId = currentUser.GetUserId()
 					}
@@ -204,29 +200,9 @@ func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location 
 	return shipperId
 }
 
-func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
-	server := socketio.NewServer(&engineio.Options{
-		Transports: []transport.Transport{websocket.Default},
-	})
-
-	engine.server = server
-
-	server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		fmt.Println("connected:", s.ID(), " IP:", s.RemoteAddr(), s.ID())
-		return nil
-	})
-
-	server.OnError("/", func(s socketio.Conn, e error) {
-		fmt.Println("meet error:", e)
-	})
-
-	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
-		fmt.Println("closed", reason)
-	})
-
-	// Setup
-	server.OnEvent("/", common.EvenAuthenticated, func(s socketio.Conn, token string) {
+func authenticated(appCtx component.AppContext, engine *rtEngine) func(s socketio.Conn, token string) {
+	return func(s socketio.Conn, token string) {
+		server := engine.server
 		db := appCtx.GetMainDBConnection()
 		store := userstorage.NewSqlStore(db)
 
@@ -267,13 +243,36 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 
 		log.Println(user.Id)
 
-		server.OnEvent("/", common.EventUserUpdateLocation, skuser.OnUserUpdateLocation(appCtx, user))
-		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine))
+		server.OnEvent("/", common.EventUserUpdateLocation+user.FakeId.String(), skuser.OnUserUpdateLocation(appCtx, user))
+		server.OnEvent("/", common.EvenUserCreateOrder+user.FakeId.String(), skorder.OnUserOrder(appCtx, user, engine))
 		server.OnEvent("/", common.OrderTracking, skorder.OnOrderTracking(appCtx, user, engine))
+	}
+}
 
-		//time.Sleep(time.Second * 5)
-		//engine.GetShipper(appCtx.GetReddit(), 3, skuser.LocationData{Lat: 117, Lng: 4})
+func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
+	server := socketio.NewServer(&engineio.Options{
+		Transports: []transport.Transport{websocket.Default},
 	})
+
+	engine.server = server
+
+	server.OnConnect("/", func(s socketio.Conn) error {
+		s.SetContext("")
+		fmt.Println("connected:", s.ID(), " IP:", s.RemoteAddr(), s.ID())
+		return nil
+	})
+
+	server.OnError("/", func(s socketio.Conn, e error) {
+		fmt.Println("meet error:", e)
+	})
+
+	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
+		fmt.Println("closed", reason)
+	})
+
+	// Setup
+
+	server.OnEvent("/", common.EvenAuthenticated, authenticated(appCtx, engine))
 
 	go server.Serve()
 

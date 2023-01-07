@@ -12,6 +12,12 @@
 <body>
 <div id="main">
     <h1>Demo Socket IO</h1>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input id="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <div class="card-body"></div>
+        <button type="submit" class="btn btn-primary" onclick="handleLogin()">Login</button>
+    </div>
     <button type="button" class="btn btn-primary" onclick="onStartOrder()">Order</button>
 </div>
 
@@ -19,10 +25,36 @@
     const socket = io("", {transports: ['websocket']});
     var timeDisconnect = 0
     let intervalLocation = null
+    let user = null
+
+    const handleLogin = () => {
+        const email = document.getElementById('email').value;
+        const body = {
+            email,
+            "password": "123456"
+        }
+
+        axios({
+            method: 'post',
+            url: 'http://localhost:8080/v1/login',
+            data: body
+        })
+            .then(function (response) {
+                const token = response.data.data.token;
+                console.log(token)
+                socket.emit(
+                    'EvenAuthenticated',
+                    token
+                );
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
 
     const onStartOrder = () => {
         console.log("Start Order...")
-        socket.emit("EvenUserCreateOrder", {
+        socket.emit("EvenUserCreateOrder" + user.id, {
             totalPrice: 101
         })
     }
@@ -31,14 +63,10 @@
         return Math.floor(Math.random() * (max - min)) + min
     }
 
-    socket.on('connect', () => {
-        console.log('Client connected');
-        socket.emit(
-            'EvenAuthenticated',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjMsInJvbGUiOiJ1c2VyIn0sImV4cCI6MTY3NTUwMjkwMiwiaWF0IjoxNjcyOTEwOTAyfQ.Tkzydpc3orpEjGNQZnkRvbjUm2eISnawSBeynKp-q7A'
-        );
-    })
+
+
     socket.on('EmitAuthenticated', (msg) => {
+        user = msg
         console.log('authenticated', msg)
         socket.on("OrderTracking", data => {
             console.log("EmitOrderTracking", data)
@@ -47,8 +75,8 @@
                 console.log("Shipper accept your order!")
             }
 
-            if (data.type === "OrderSuccessfully") {
-                console.log("Receiver package success!")
+            if (data.type === "OrderShipperReject") {
+                console.log("Shipper id: " , data.shipperId, " reject order")
             }
 
             if (data.type === "OrderSuccessfully") {
@@ -61,7 +89,7 @@
         }
 
         intervalLocation = setInterval(() => {
-            socket.emit("EventUserUpdateLocation", {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
+            socket.emit("EventUserUpdateLocation" + msg.id, {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
         }, 3000)
     });
 

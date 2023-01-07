@@ -32,7 +32,11 @@ func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngi
 		pubsub := appCtx.GetPubsub()
 		reddit := appCtx.GetReddit()
 
+		log.Println(requester.GetUserId())
+		
 		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(requester.GetUserId()))
+
+		log.Println(shipperId)
 
 		pubsub.Publish(context.Background(), common.TopicHandleOrderWhenUserOrderFood, pubsub2.NewMessage(ordermodel.Order{
 			TotalPrice: data.TotalPrice,
@@ -72,6 +76,8 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 				UserId:    data.UserId,
 				Type:      common.OrderShipperReject,
 			})
+
+			s.Leave(roomKey)
 		}
 
 		if data.Type == common.OrderSuccessfully {
@@ -84,6 +90,8 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 				UserId:    data.UserId,
 				Type:      common.OrderSuccessfully,
 			})
+
+			s.Leave(roomKey)
 		}
 	}
 }

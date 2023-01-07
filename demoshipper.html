@@ -1,4 +1,4 @@
-<!doctype html>
+Result Size: 945 x 859
 <head>
     <title>Demo socket 200lab </title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
@@ -12,16 +12,45 @@
 <body>
 <div id="main">
     <h1>Demo Socket shipper online</h1>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input id="email" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+        <div class="card-body"></div>
+        <button type="submit" class="btn btn-primary" onclick="handleLogin()">Login</button>
+    </div>
     <button type="button" class="btn btn-primary" onclick="onClickAcceptOrder()">Accept order</button>
     <button type="button" class="btn btn-secondary" onclick="onClickArrived()">Arrived</button>
     <button type="button" class="btn btn-danger" onclick="onRejectOrder()">Reject order</button>
 </div>
-
 <script>
     const socket = io("", {transports: ['websocket']});
     let timeDisconnect = 0;
     let dataOrder = null
     let intervalLocation = null
+    const handleLogin = () => {
+        const email = document.getElementById('email').value;
+        const body = {
+            email,
+            "password": "123456"
+        }
+
+        axios({
+            method: 'post',
+            url: 'http://localhost:8080/v1/login',
+            data: body
+        })
+            .then(function (response) {
+                const token = response.data.data.token;
+                console.log(token)
+                socket.emit(
+                    'EvenAuthenticated',
+                    token
+                );
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
 
     const onClickAcceptOrder = () => {
         console.log("Shipper Accept order", dataOrder.type);
@@ -29,13 +58,12 @@
             socket.emit("OrderTracking", {...dataOrder, type: "OrderShipperAccept"})
         }
     }
-
-    const onClickArrived = () => {
-        console.log("Shipper Arrived test", dataOrder.type );
-        if (dataOrder && dataOrder.type === "OrderProcess") {
-            socket.emit("OrderTracking", {...dataOrder, type: "OrderSuccessfully"})
-        }
+const onClickArrived = () => {
+    console.log("Shipper Arrived test", dataOrder.type );
+    if (dataOrder && dataOrder.type === "OrderProcess") {
+        socket.emit("OrderTracking", {...dataOrder, type: "OrderSuccessfully"})
     }
+}
 
     const onRejectOrder = () => {
         console.log("Shipper Reject Order", dataOrder.type);
@@ -49,14 +77,6 @@
     }
 
 
-    socket.on('connect', () => {
-        console.log('Client connected');
-        socket.emit(
-            'EvenAuthenticated',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7InVzZXJfaWQiOjQsInJvbGUiOiJzaGlwcGVyIn0sImV4cCI6MTY3NTU4MDQxOCwiaWF0IjoxNjcyOTg4NDE4fQ.U8nKvgayWOzzQWkT5Mj0Ph5az9pc0JLdhJMzpimilug'
-        );
-    })
-
     socket.on('EmitAuthenticated', (msg) => {
         console.log('Authenticated', msg)
 
@@ -64,7 +84,7 @@
             console.log("on - OrderTracking", data)
             dataOrder = data;
             if (data.type === "OrderSuccessfully") {
-                console.log("Receiver package success!")
+                console.log("Giving package success!")
             }
         });
 
@@ -73,8 +93,8 @@
         }
 
         intervalLocation = setInterval(() => {
-            socket.emit("EventUserUpdateLocation", {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
-        }, 3000)
+            socket.emit("EventUserUpdateLocation" + msg.id, {lat: randomLocation(130.65, 90.26), lng: randomLocation(10, 0.91)})
+        }, 5000)
     });
 
     socket.on('authentication_failed', (msg) => console.log('authentication_failed:', msg));
@@ -90,5 +110,4 @@
 
 </script>
 </body>
-
 </html>
