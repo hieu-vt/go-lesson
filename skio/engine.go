@@ -20,7 +20,6 @@ import (
 	"log"
 	"math"
 	"sync"
-	"time"
 )
 
 type RealtimeEngine interface {
@@ -155,8 +154,8 @@ func calculatorDistance(lat1 float64, lng1 float64, lat2 float64, lng2 float64, 
 }
 
 func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location interface{}) int {
-	userLocation := skuser.LocationData{Lat: 117.1, Lng: 4.01}
-	//distanceAround := 5 // KM
+	userLocation := location.(skuser.LocationData)
+	distanceAround := 5 // KM
 	var minDistance float64
 	minDistance = 0
 	var shipperId int
@@ -164,57 +163,42 @@ func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location 
 	i := 4
 
 	for {
-		if i > len(engine.storage)-1 {
-			isSecondCheck = true
-
+		for _, user := range engine.storage {
 			if isSecondCheck {
-				return shipperId
+				i = 0
+				currentUser := user[0]
+				if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
+					shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
+					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+
+					if i == 0 {
+						minDistance = distance
+						shipperId = currentUser.GetUserId()
+					}
+
+					if minDistance > distance {
+						minDistance = distance
+						shipperId = currentUser.GetUserId()
+					}
+				}
+			} else {
+				currentUser := user[0]
+				if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
+					shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
+					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+
+					if distance < float64(distanceAround) {
+						shipperId = currentUser.GetUserId()
+						return shipperId
+					}
+				}
 			}
 		}
-
 		if isSecondCheck {
-			i = 0
-			currentUser := engine.storage[i][0]
-			log.Println(currentUser)
-			log.Println(currentUser.GetUserId())
-			log.Println(id)
-			log.Println(string(usermodel.SHIPPER))
-			log.Println(reddit.Get(currentUser.GetUserId()))
-
-			if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
-				shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
-				distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
-
-				if i == 0 {
-					minDistance = distance
-					shipperId = currentUser.GetUserId()
-				}
-
-				if minDistance > distance {
-					minDistance = distance
-					shipperId = currentUser.GetUserId()
-				}
-			}
-		} else {
-
-			currentUser := engine.storage[i]
-			log.Println(currentUser)
-			//log.Println(currentUser.GetUserId())
-			//log.Println(currentUser.GetRole())
-			//log.Println(id)
-			//log.Println(string(usermodel.SHIPPER))
-			//log.Println(reddit.Get(currentUser.GetUserId()))
-			//if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
-			//	shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
-			//	distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
-			//
-			//	if distance < float64(distanceAround) {
-			//		shipperId = currentUser.GetUserId()
-			//		return shipperId
-			//	}
-			//}
+			return shipperId
 		}
-		i++
+
+		isSecondCheck = true
 	}
 
 	return shipperId
@@ -281,12 +265,14 @@ func (engine *rtEngine) Run(appCtx component.AppContext, r *gin.Engine) error {
 		//	appSck.Join("admin")
 		//}
 
+		log.Println(user.Id)
+
 		server.OnEvent("/", common.EventUserUpdateLocation, skuser.OnUserUpdateLocation(appCtx, user))
 		server.OnEvent("/", common.EvenUserCreateOrder, skorder.OnUserOrder(appCtx, user, engine))
 		server.OnEvent("/", common.OrderTracking, skorder.OnOrderTracking(appCtx, user, engine))
 
-		time.Sleep(time.Second * 5)
-		engine.GetShipper(appCtx.GetReddit(), 3, skuser.LocationData{Lat: 117, Lng: 4})
+		//time.Sleep(time.Second * 5)
+		//engine.GetShipper(appCtx.GetReddit(), 3, skuser.LocationData{Lat: 117, Lng: 4})
 	})
 
 	go server.Serve()

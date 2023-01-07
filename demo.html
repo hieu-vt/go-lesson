@@ -27,6 +27,10 @@
         })
     }
 
+    const randomLocation = (max, min) => {
+        return Math.floor(Math.random() * (max - min)) + min
+    }
+
     socket.on('connect', () => {
         console.log('Client connected');
         socket.emit(
