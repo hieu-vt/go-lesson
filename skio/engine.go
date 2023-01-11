@@ -160,14 +160,16 @@ func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location 
 	minDistance = 0
 	var shipperId int
 	isSecondCheck := false
+	userId := fmt.Sprintf("%d", id)
 
 	for {
 		for _, user := range engine.storage {
 			if isSecondCheck {
 				currentUser := user[0]
-				if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
-					shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
-					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+				currentUserId := fmt.Sprintf("%d", currentUser.GetUserId())
+				shipperLocation := reddit.Get(currentUserId)
+				if userId != currentUserId && currentUser.GetRole() == string(usermodel.SHIPPER) && shipperLocation != nil {
+					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.(skuser.LocationData).Lat, shipperLocation.(skuser.LocationData).Lng)
 
 					if minDistance == 0 {
 						minDistance = distance
@@ -179,13 +181,13 @@ func (engine *rtEngine) GetShipper(reddit reddit.RedditEngine, id int, location 
 				}
 			} else {
 				currentUser := user[0]
-				if id != currentUser.GetUserId() && currentUser.GetRole() == string(usermodel.SHIPPER) && reddit.Get(currentUser.GetUserId()) != nil {
-					shipperLocation := reddit.Get(currentUser.GetUserId()).(skuser.LocationData)
-					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.Lat, shipperLocation.Lng)
+				currentUserId := fmt.Sprintf("%d", currentUser.GetUserId())
+				shipperLocation := reddit.Get(currentUserId)
+				if userId != currentUserId && currentUser.GetRole() == string(usermodel.SHIPPER) && shipperLocation != nil {
+					distance := calculatorDistance(userLocation.Lat, userLocation.Lng, shipperLocation.(skuser.LocationData).Lat, shipperLocation.(skuser.LocationData).Lng)
 
 					if distance < float64(distanceAround) {
-						shipperId = currentUser.GetUserId()
-						return shipperId
+						return currentUser.GetUserId()
 					}
 				}
 			}

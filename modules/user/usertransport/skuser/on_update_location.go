@@ -1,6 +1,7 @@
 package skuser
 
 import (
+	"fmt"
 	socketio "github.com/googollee/go-socket.io"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
@@ -17,7 +18,7 @@ func OnUserUpdateLocation(appCtx component.AppContext, requester common.Requeste
 		//time.Sleep(2 * time.Second)
 		reddit := appCtx.GetReddit()
 		//log.Println("User before location: user id is", requester.GetUserId(), "at location", reddit.Get(requester.GetUserId()))
-		reddit.Save(requester.GetUserId(), location)
+		reddit.Save(fmt.Sprintf("%d", requester.GetUserId()), location)
 		log.Println("User update location: user id is", requester.GetUserId(), "at location", location)
 	}
 }

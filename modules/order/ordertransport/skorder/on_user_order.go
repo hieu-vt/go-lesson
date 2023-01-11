@@ -2,6 +2,7 @@ package skorder
 
 import (
 	"context"
+	"fmt"
 	socketio "github.com/googollee/go-socket.io"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
@@ -31,10 +32,11 @@ func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngi
 	return func(s socketio.Conn, data DataOrder) {
 		pubsub := appCtx.GetPubsub()
 		reddit := appCtx.GetReddit()
+		userId := fmt.Sprintf("%d", requester.GetUserId())
 
 		log.Println(requester.GetUserId())
-		
-		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(requester.GetUserId()))
+
+		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(userId))
 
 		log.Println(shipperId)
 
