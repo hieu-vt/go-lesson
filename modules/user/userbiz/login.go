@@ -3,6 +3,7 @@ package userbiz
 import (
 	"context"
 	"lesson-5-goland/common"
+	"lesson-5-goland/component"
 	"lesson-5-goland/component/tokenprovider"
 	"lesson-5-goland/modules/user/usermodel"
 )
@@ -23,7 +24,9 @@ func NewLoginBiz(store LoginStore, hasher Hasher, tokenProvider tokenprovider.Pr
 }
 
 func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (*tokenprovider.Token, error) {
-	user, err := biz.store.FindUser(ctx, map[string]interface{}{"email": body.Email})
+	ctxTrace, span := component.Tracer.Start(ctx, "user.biz.Login")
+	defer span.End()
+	user, err := biz.store.FindUser(ctxTrace, map[string]interface{}{"email": body.Email})
 
 	if err != nil {
 		if err == common.RecordNotFound {

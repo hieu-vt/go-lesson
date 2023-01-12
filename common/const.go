@@ -42,3 +42,8 @@ const (
 	OrderProcess       TrackingType = "OrderProcess"
 	OrderSuccessfully  TrackingType = "OrderSuccessfully"
 )
+
+const (
+	TRACE_SERVICE = "trace-demo"
+	ENVIRONMENT   = "dev"
+)

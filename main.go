@@ -2,8 +2,17 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.6.1"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"lesson-5-goland/common"
 	"lesson-5-goland/component"
 	"lesson-5-goland/component/uploadprovider"
 	"lesson-5-goland/middleware"
@@ -21,23 +30,22 @@ import (
 	"os"
 )
 
-type Restaurant struct {
-	Id   int    `json:"id,omitempty" gorm:"column:id;"`
-	Name string `json:"name" gorm:"column:name;"`
-	Addr string `json:"addr" gorm:"column:addr;"`
-}
-
-type RestaurantUpdate struct {
-	Name *string `json:"name" gorm:"column:name;"`
-	Addr *string `json:"addr" gorm:"column:addr;"`
-}
-
-func (Restaurant) TableName() string {
-	return "restaurants"
-}
-
-func (RestaurantUpdate) TableName() string {
-	return Restaurant{}.TableName()
+func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://localhost:14268/api/traces")))
+	if err != nil {
+		return nil, err
+	}
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(common.TRACE_SERVICE),
+			semconv.DeploymentEnvironmentKey.String(common.ENVIRONMENT),
+		)),
+	)
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	return tp, nil
 }
 
 func main() {
@@ -75,8 +83,15 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 	engine.Start()
 
+	_, err := tracerProvider("http://localhost:14268/api/traces")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	//subscriber.IncreaseLikeCountAfterUserLikeRestaurant(appCtx, context.Background())
 	r.Use(middleware.Recover(appCtx))
+	r.Use(otelgin.Middleware(common.TRACE_SERVICE))
+
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -129,113 +144,3 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
-
-//func startSocketIOServer(engine *gin.Engine, appCtx component.AppContext) {
-//	server := socketio.NewServer(&engineio.Options{
-//		Transports: []transport.Transport{websocket.Default},
-//	})
-//
-//	server.OnConnect("/", func(s socketio.Conn) error {
-//		//s.SetContext("")
-//		fmt.Println("connected:", s.ID(), " IP:", s.RemoteAddr())
-//
-//		//s.Join("Shipper")
-//		//server.BroadcastToRoom("/", "Shipper", "test", "Hello 200lab")
-//
-//		return nil
-//	})
-//
-//	server.OnError("/", func(s socketio.Conn, e error) {
-//		fmt.Println("meet error:", e)
-//	})
-//
-//	server.OnDisconnect("/", func(s socketio.Conn, reason string) {
-//		fmt.Println("closed", reason)
-//		// Remove socket from socket engine (from app context)
-//	})
-//
-//	//server.OnEvent("/", "authenticate", func(s socketio.Conn, token string) {
-//	//
-//	//	// Validate token
-//	//	// If false: s.Close(), and return
-//	//
-//	//	// If true
-//	//	// => UserId
-//	//	// Fetch db find user by Id
-//	//	// Here: s belongs to who? (user_id)
-//	//	// We need a map[user_id][]socketio.Conn
-//	//
-//	//	db := appCtx.GetMainDBConnection()
-//	//	store := userstorage.NewSQLStore(db)
-//	//	//
-//	//	tokenProvider := jwt.NewTokenJWTProvider(appCtx.SecretKey())
-//	//	//
-//	//	payload, err := tokenProvider.Validate(token)
-//	//
-//	//	if err != nil {
-//	//		s.Emit("authentication_failed", err.Error())
-//	//		s.Close()
-//	//		return
-//	//	}
-//	//	//
-//	//	user, err := store.FindUser(context.Background(), map[string]interface{}{"id": payload.UserId})
-//	//	//
-//	//	if err != nil {
-//	//		s.Emit("authentication_failed", err.Error())
-//	//		s.Close()
-//	//		return
-//	//	}
-//	//
-//	//	if user.Status == 0 {
-//	//		s.Emit("authentication_failed", errors.New("you has been banned/deleted"))
-//	//		s.Close()
-//	//		return
-//	//	}
-//	//
-//	//	user.Mask(false)
-//	//
-//	//	s.Emit("your_profile", user)
-//	//})
-//
-//	type Person struct {
-//		Name string `json:"name"`
-//		Age  int    `json:"age"`
-//	}
-//
-//	server.OnEvent("/", "notice", func(s socketio.Conn, p Person) {
-//		fmt.Println("server receive notice:", p.Name, p.Age)
-//
-//		p.Age = 33
-//		s.Emit("notice", p)
-//
-//	})
-//
-//	server.OnEvent("/", "test", func(s socketio.Conn, msg string) {
-//		fmt.Println("server receive test:", msg)
-//		s.Emit("test", "Hello client")
-//	})
-//	//
-//	//server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
-//	//	s.SetContext(msg)
-//	//	return "recv " + msg
-//	//})
-//	//
-//	//server.OnEvent("/", "bye", func(s socketio.Conn) string {
-//	//	last := s.Context().(string)
-//	//	s.Emit("bye", last)
-//	//	s.Close()
-//	//	return last
-//	//})
-//	//
-//	//server.OnEvent("/", "noteSumit", func(s socketio.Conn) string {
-//	//	last := s.Context().(string)
-//	//	s.Emit("bye", last)
-//	//	s.Close()
-//	//	return last
-//	//})
-//
-//	go server.Serve()
-//
-//	engine.GET("/socket.io/*any", gin.WrapH(server))
-//	engine.POST("/socket.io/*any", gin.WrapH(server))
-//}
