@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -25,7 +26,6 @@ import (
 	"lesson-5-goland/reddit"
 	"lesson-5-goland/skio"
 	"lesson-5-goland/subscriber"
-	"log"
 	"net/http"
 	"os"
 )
@@ -71,8 +71,14 @@ func main() {
 }
 
 func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetOutput(os.Stdout)
+
 	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub(), reddit.NewRedditEngine())
 	r := gin.Default()
+
+	log.WithField("text", "Hello").Info("My name is Hieu 1")
+	log.Info("hello 1111")
 
 	rtEngine := skio.NewEngine()
 	if err := rtEngine.Run(appCtx, r); err != nil {
