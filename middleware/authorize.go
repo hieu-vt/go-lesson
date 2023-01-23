@@ -8,6 +8,7 @@ import (
 	"lesson-5-goland/component"
 	jwt2 "lesson-5-goland/component/tokenprovider/jwt"
 	"lesson-5-goland/modules/user/userstorage"
+	"lesson-5-goland/reddit"
 	"strings"
 )
 
@@ -45,13 +46,14 @@ func RequiredAuth(appCtx component.AppContext) func(c *gin.Context) {
 
 		db := appCtx.GetMainDBConnection()
 		store := userstorage.NewSqlStore(db)
+		userCache := reddit.NewUserCache(appCtx.GetReddit(), store)
 
 		payload, err := tokenProvider.Validate(token)
 		if err != nil {
 			panic(err)
 		}
 
-		user, err := store.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
+		user, err := userCache.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
 
 		if err != nil {
 			panic(err)

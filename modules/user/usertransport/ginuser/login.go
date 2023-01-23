@@ -15,7 +15,7 @@ import (
 func Login(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var body usermodel.UserLogin
-
+		reddit := appCtx.GetReddit()
 		if err := c.ShouldBind(&body); err != nil {
 			panic(err)
 		}
@@ -23,7 +23,7 @@ func Login(appCtx component.AppContext) gin.HandlerFunc {
 		store := userstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		tokenProvider := jwt.NewTokenJwt(appCtx.SecretKey())
 		md5Hasher := hasher.NewMd5Hash()
-		biz := userbiz.NewLoginBiz(store, md5Hasher, tokenProvider, 60*60*24*30)
+		biz := userbiz.NewLoginBiz(store, md5Hasher, tokenProvider, 60*60*24*30, reddit)
 		token, err := biz.Login(c, &body)
 
 		if err != nil {
