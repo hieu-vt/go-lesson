@@ -6,7 +6,10 @@ import (
 	"strings"
 )
 
-const EntityName = "Restaurant"
+const (
+	EntityName               = "Restaurant"
+	RestaurantNameIsNotBlank = "this restaurant name is not blank"
+)
 
 type Restaurant struct {
 	common.SqlModel `json:",inline"`
@@ -51,7 +54,7 @@ func (res *RestaurantCreate) ValidateRestaurantData() error {
 	res.Name = strings.TrimSpace(res.Name)
 
 	if len(res.Name) == 0 {
-		return errors.New("this restaurant name is not blank")
+		return errors.New(RestaurantNameIsNotBlank)
 	}
 
 	return nil
