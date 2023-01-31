@@ -9,6 +9,7 @@ import (
 const (
 	EntityName               = "Restaurant"
 	RestaurantNameIsNotBlank = "this restaurant name is not blank"
+	RestaurantNotFound       = "restaurant not found"
 )
 
 type Restaurant struct {

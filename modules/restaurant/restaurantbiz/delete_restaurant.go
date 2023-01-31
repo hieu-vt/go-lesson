@@ -30,12 +30,12 @@ func (biz *deleteRestaurantBiz) DeleteRestaurant(ctx context.Context, id int) er
 		return common.ErrEntityNotFound(restaurantmodel.EntityName, err)
 	}
 
-	if data.Status <= 0 {
-		return common.ErrEntityNotFound(restaurantmodel.EntityName, errors.New("restaurant not found"))
+	if data == nil || data.Status <= 0 {
+		return common.ErrEntityNotFound(restaurantmodel.EntityName, errors.New(restaurantmodel.RestaurantNotFound))
 	}
 
 	if err := biz.store.DeleteRestaurantWithCondition(ctx, id); err != nil {
-		return common.ErrCannotDeleteEntity(restaurantmodel.EntityName, errors.New("restaurant not found"))
+		return common.ErrCannotDeleteEntity(restaurantmodel.EntityName, errors.New(restaurantmodel.RestaurantNotFound))
 	}
 
 	return nil
