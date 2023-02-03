@@ -34,8 +34,6 @@ func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngi
 		reddit := appCtx.GetReddit()
 		userId := fmt.Sprintf("%d", requester.GetUserId())
 
-		log.Println(requester.GetUserId())
-
 		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(userId))
 
 		log.Println(shipperId)
