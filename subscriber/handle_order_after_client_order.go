@@ -15,24 +15,18 @@ func HandleOrderAfterClientOrder(appCtx component.AppContext) consumerJob {
 	return consumerJob{
 		Title: "Handle find shipper and push socket to user",
 		Hld: func(c context.Context, message *pubsub.Message) error {
-			//store := orderstorage.NewSqlStore(appCtx.GetMainDBConnection())
-
-			orderData := message.Data().(ordermodel.Order)
-
-			orderData.Status = 1
-
-			//if err := store.Create(c, &orderData); err != nil {
-			//	return err
-			//}
+			orderData := message.Data().(ordermodel.CreateOrder)
 
 			orderData.Mask(false)
 
 			pub := appCtx.GetPubsub()
 			pub.Publish(c, common.TopicEmitEvenWhenUserCreateOrderSuccess, pubsub.NewMessage(skorder.TopicEmitEvenOrderMessageData{
-				OrderId:   orderData.FakeId.String(),
-				ShipperId: orderData.ShipperId,
-				UserId:    orderData.UserId,
-				Type:      common.OrderStart,
+				OrderId: orderData.FakeId.String(),
+				CreateOrder: ordermodel.CreateOrder{
+					ShipperId: orderData.ShipperId,
+					UserId:    orderData.UserId,
+				},
+				Type: common.OrderStart,
 			}))
 
 			return nil

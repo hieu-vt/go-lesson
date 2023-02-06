@@ -13,7 +13,7 @@ import (
 )
 
 type DataOrder struct {
-	TotalPrice float64 `json:"totalPrice"`
+	OrderId *common.UID `json:"orderId"`
 }
 
 type RealtimeEngine interface {
@@ -22,10 +22,9 @@ type RealtimeEngine interface {
 }
 
 type TopicEmitEvenOrderMessageData struct {
-	OrderId   string              `json:"orderId"`
-	ShipperId int                 `json:"shipperId"`
-	UserId    int                 `json:"userId"`
-	Type      common.TrackingType `json:"type"`
+	ordermodel.CreateOrder `json:",inline"`
+	OrderId                string              `json:"orderId"`
+	Type                   common.TrackingType `json:"type"`
 }
 
 func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngine RealtimeEngine) func(s socketio.Conn, data DataOrder) {
@@ -36,12 +35,12 @@ func OnUserOrder(appCtx component.AppContext, requester common.Requester, rtEngi
 
 		shipperId := rtEngine.GetShipper(reddit, requester.GetUserId(), reddit.Get(userId))
 
-		log.Println(shipperId)
-
-		pubsub.Publish(context.Background(), common.TopicHandleOrderWhenUserOrderFood, pubsub2.NewMessage(ordermodel.Order{
-			TotalPrice: data.TotalPrice,
-			ShipperId:  shipperId,
-			UserId:     requester.GetUserId(),
+		pubsub.Publish(context.Background(), common.TopicHandleOrderWhenUserOrderFood, pubsub2.NewMessage(ordermodel.CreateOrder{
+			SqlModel: common.SqlModel{
+				FakeId: data.OrderId,
+			},
+			UserId:    requester.GetUserId(),
+			ShipperId: shipperId,
 		}))
 	}
 }
@@ -54,16 +53,20 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 		// Từ đó khi shipper cứ update trạng thái vào database thì nó sẽ emit to room cái trạng thái cho user
 		// Khi nàp successfully thì update lại ở database và clear process
 
+		// Create Pubsub update order tracking to database
+
 		roomKey := common.OrderTracking + data.OrderId
 		if data.Type == common.OrderShipperAccept {
 			log.Println("Tracking order", data.Type)
 			// handle join shipper to room and update tracking type
 			s.Join(roomKey)
 			rtEngine.EmitToRoom(roomKey, common.OrderTracking, TopicEmitEvenOrderMessageData{
-				OrderId:   data.OrderId,
-				ShipperId: data.ShipperId,
-				UserId:    data.UserId,
-				Type:      common.OrderProcess,
+				CreateOrder: ordermodel.CreateOrder{
+					ShipperId: data.ShipperId,
+					UserId:    data.UserId,
+				},
+				OrderId: data.OrderId,
+				Type:    common.OrderProcess,
 			})
 		}
 
@@ -71,10 +74,12 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 			log.Println("Tracking order", data.Type)
 			// handle find another shipper
 			rtEngine.EmitToRoom(roomKey, common.OrderTracking, TopicEmitEvenOrderMessageData{
-				OrderId:   data.OrderId,
-				ShipperId: data.ShipperId,
-				UserId:    data.UserId,
-				Type:      common.OrderShipperReject,
+				OrderId: data.OrderId,
+				CreateOrder: ordermodel.CreateOrder{
+					ShipperId: data.ShipperId,
+					UserId:    data.UserId,
+				},
+				Type: common.OrderShipperReject,
 			})
 
 			s.Leave(roomKey)
@@ -85,10 +90,12 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 			// handle update database
 			// handle clear rooms
 			rtEngine.EmitToRoom(roomKey, common.OrderTracking, TopicEmitEvenOrderMessageData{
-				OrderId:   data.OrderId,
-				ShipperId: data.ShipperId,
-				UserId:    data.UserId,
-				Type:      common.OrderSuccessfully,
+				OrderId: data.OrderId,
+				CreateOrder: ordermodel.CreateOrder{
+					ShipperId: data.ShipperId,
+					UserId:    data.UserId,
+				},
+				Type: common.OrderSuccessfully,
 			})
 
 			s.Leave(roomKey)
