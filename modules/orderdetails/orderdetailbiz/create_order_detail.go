@@ -25,6 +25,8 @@ func (biz *orderDetailBiz) CreateOrderDetail(ctx context.Context, data *orderdet
 		return common.ErrNoPermission(err)
 	}
 
+	data.Status = 1
+
 	if err := biz.store.Create(ctx, data); err != nil {
 		return common.ErrCannotCreateEntity(orderdetailmodel.TableNameOrderDetail, err)
 	}

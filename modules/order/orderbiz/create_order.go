@@ -23,6 +23,8 @@ func (biz *createOrderBiz) CreateOrder(ctx context.Context, order *ordermodel.Cr
 		return common.ErrNoPermission(err)
 	}
 
+	order.Status = 1
+
 	if err := biz.orderStore.Create(ctx, order); err != nil {
 		return common.ErrCannotCreateEntity(ordermodel.TableOrderName, err)
 	}
