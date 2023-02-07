@@ -3,14 +3,53 @@ package orderdetailbiz
 import (
 	"context"
 	"errors"
+	"lesson-5-goland/common"
+	"lesson-5-goland/modules/order/ordermodel"
 	"lesson-5-goland/modules/orderdetails/orderdetailmodel"
 	"testing"
 )
 
-type mockCreateStore struct {
+type mockOrderDetailStore struct {
 }
 
-func (s *mockCreateStore) Create(ctx context.Context, orderDetail *orderdetailmodel.OrderDetail) error {
+type mockOrderStore struct {
+}
+
+func (s *mockOrderStore) FindByCondition(ctx context.Context, condition map[string]interface{}, moreKeys ...string) (*ordermodel.Order, error) {
+	var result *ordermodel.Order
+	var error error
+
+	result = &ordermodel.Order{
+		SqlModel: common.SqlModel{
+			Status: 1,
+		},
+		UserId:     0,
+		ShipperId:  0,
+		TotalPrice: 0,
+	}
+
+	for i := range condition {
+		if condition[i] == 3 {
+			result = nil
+			error = errors.New("something wrong with db")
+		}
+
+		if condition[i] == 4 {
+			result = &ordermodel.Order{
+				SqlModel: common.SqlModel{
+					Status: 0,
+				},
+				UserId:     0,
+				ShipperId:  0,
+				TotalPrice: 0,
+			}
+		}
+	}
+
+	return result, error
+}
+
+func (s *mockOrderDetailStore) Create(ctx context.Context, orderDetail *orderdetailmodel.OrderDetail) error {
 	if orderDetail.OrderId == 2 {
 		return errors.New("something wrong with db")
 	}
@@ -24,8 +63,9 @@ type testingItem struct {
 }
 
 func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
-	store := &mockCreateStore{}
-	biz := NewOrderDetailBiz(store)
+	store := &mockOrderDetailStore{}
+	orderStore := &mockOrderStore{}
+	biz := NewOrderDetailBiz(store, orderStore)
 
 	dataTable := []testingItem{
 		{
@@ -71,6 +111,24 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 				Price:      12,
 			},
 			Expected: errors.New("something wrong with db"),
+			Actual:   nil,
+		},
+		{
+			Input: orderdetailmodel.OrderDetail{
+				OrderId:    3,
+				FoodOrigin: "222",
+				Price:      12,
+			},
+			Expected: errors.New("something wrong with db"),
+			Actual:   nil,
+		},
+		{
+			Input: orderdetailmodel.OrderDetail{
+				OrderId:    4,
+				FoodOrigin: "222",
+				Price:      12,
+			},
+			Expected: common.ErrEntityNotFound(ordermodel.TableOrderName, nil),
 			Actual:   nil,
 		},
 	}

@@ -20,6 +20,7 @@ import (
 	"lesson-5-goland/modules/food/foodtransport/ginfood"
 	"lesson-5-goland/modules/order/ordertransport/ginorder"
 	"lesson-5-goland/modules/orderdetails/orderdetailtransport/ginorderdetail"
+	"lesson-5-goland/modules/ordertracking/ordertrackingtranport/ginordertracking"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/upload/uploadtransport/ginupload"
@@ -155,6 +156,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 	{
 		orders.POST("", ginorder.CreateOrder(appCtx))
 		orders.POST("/detail", ginorderdetail.CreateOrderDetail(appCtx))
+		orders.POST("/tracking", ginordertracking.CreateOrderTracking(appCtx))
 	}
 
 	return r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

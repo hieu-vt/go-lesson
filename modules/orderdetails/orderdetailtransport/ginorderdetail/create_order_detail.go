@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
+	"lesson-5-goland/modules/order/orderstorage"
 	"lesson-5-goland/modules/orderdetails/orderdetailbiz"
 	"lesson-5-goland/modules/orderdetails/orderdetailmodel"
 	"lesson-5-goland/modules/orderdetails/orderdetailstorage"
@@ -20,7 +21,8 @@ func CreateOrderDetail(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		store := orderdetailstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := orderdetailbiz.NewOrderDetailBiz(store)
+		orderStore := orderstorage.NewSqlStore(appCtx.GetMainDBConnection())
+		biz := orderdetailbiz.NewOrderDetailBiz(store, orderStore)
 
 		orderId, err := common.FromBase58(orderDetail.OrderId)
 

@@ -56,7 +56,7 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 		// Create Pubsub update order tracking to database
 
 		roomKey := common.OrderTracking + data.OrderId
-		if data.Type == common.OrderShipperAccept {
+		if data.Type == common.WaitingForShipper {
 			log.Println("Tracking order", data.Type)
 			// handle join shipper to room and update tracking type
 			s.Join(roomKey)
@@ -66,11 +66,11 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 					UserId:    data.UserId,
 				},
 				OrderId: data.OrderId,
-				Type:    common.OrderProcess,
+				Type:    common.Preparing,
 			})
 		}
 
-		if data.Type == common.OrderShipperReject {
+		if data.Type == common.Cancel {
 			log.Println("Tracking order", data.Type)
 			// handle find another shipper
 			rtEngine.EmitToRoom(roomKey, common.OrderTracking, TopicEmitEvenOrderMessageData{
@@ -79,13 +79,13 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 					ShipperId: data.ShipperId,
 					UserId:    data.UserId,
 				},
-				Type: common.OrderShipperReject,
+				Type: common.Cancel,
 			})
 
 			s.Leave(roomKey)
 		}
 
-		if data.Type == common.OrderSuccessfully {
+		if data.Type == common.Delivered {
 			log.Println("Tracking order", data.Type)
 			// handle update database
 			// handle clear rooms
@@ -95,7 +95,7 @@ func OnOrderTracking(appCtx component.AppContext, requester common.Requester, rt
 					ShipperId: data.ShipperId,
 					UserId:    data.UserId,
 				},
-				Type: common.OrderSuccessfully,
+				Type: common.Delivered,
 			})
 
 			s.Leave(roomKey)

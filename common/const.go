@@ -37,11 +37,11 @@ const (
 type TrackingType string
 
 const (
-	OrderStart         TrackingType = "OrderStart"
-	OrderShipperAccept TrackingType = "OrderShipperAccept"
-	OrderShipperReject TrackingType = "OrderShipperReject"
-	OrderProcess       TrackingType = "OrderProcess"
-	OrderSuccessfully  TrackingType = "OrderSuccessfully"
+	WaitingForShipper TrackingType = "waiting_for_shipper"
+	Preparing         TrackingType = "preparing"
+	Cancel            TrackingType = "cancel"
+	OnTheWay          TrackingType = "on_the_way"
+	Delivered         TrackingType = "delivered"
 )
 
 const (
