@@ -6,7 +6,7 @@ import (
 	"lesson-5-goland/modules/orderdetails/orderdetailmodel"
 )
 
-func (s *sqlStore) Create(ctx context.Context, orderDetail *orderdetailmodel.CreateOrderDetail) error {
+func (s *sqlStore) Create(ctx context.Context, orderDetail *orderdetailmodel.OrderDetail) error {
 	if err := s.db.Create(orderDetail).Error; err != nil {
 		return common.ErrDB(err)
 	}

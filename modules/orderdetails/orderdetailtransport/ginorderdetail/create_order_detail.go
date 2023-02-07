@@ -1,6 +1,7 @@
 package ginorderdetail
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
@@ -21,12 +22,32 @@ func CreateOrderDetail(appCtx component.AppContext) gin.HandlerFunc {
 		store := orderdetailstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := orderdetailbiz.NewOrderDetailBiz(store)
 
-		if err := biz.CreateOrderDetail(c, &orderDetail); err != nil {
+		orderId, err := common.FromBase58(orderDetail.OrderId)
+
+		if err != nil {
 			panic(err)
 		}
 
-		orderDetail.Mask()
+		jFoodOrigin, fOriginErr := json.Marshal(orderDetail.FoodOrigin)
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(orderDetail.FakeId))
+		if fOriginErr != nil {
+			panic(fOriginErr)
+		}
+
+		orderDetailCreated := orderdetailmodel.OrderDetail{
+			OrderId:    int(orderId.GetLocalID()),
+			FoodOrigin: string(jFoodOrigin),
+			Price:      orderDetail.Price,
+			Quantity:   orderDetail.Quantity,
+			Discount:   orderDetail.Discount,
+		}
+
+		if err := biz.CreateOrderDetail(c, &orderDetailCreated); err != nil {
+			panic(err)
+		}
+
+		orderDetailCreated.Mask()
+
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(orderDetailCreated.FakeId))
 	}
 }

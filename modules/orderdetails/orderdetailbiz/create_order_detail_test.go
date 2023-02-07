@@ -10,7 +10,7 @@ import (
 type mockCreateStore struct {
 }
 
-func (s *mockCreateStore) Create(ctx context.Context, orderDetail *orderdetailmodel.CreateOrderDetail) error {
+func (s *mockCreateStore) Create(ctx context.Context, orderDetail *orderdetailmodel.OrderDetail) error {
 	if orderDetail.OrderId == 2 {
 		return errors.New("something wrong with db")
 	}
@@ -18,7 +18,7 @@ func (s *mockCreateStore) Create(ctx context.Context, orderDetail *orderdetailmo
 }
 
 type testingItem struct {
-	Input    orderdetailmodel.CreateOrderDetail
+	Input    orderdetailmodel.OrderDetail
 	Expected error
 	Actual   error
 }
@@ -29,7 +29,7 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 
 	dataTable := []testingItem{
 		{
-			Input: orderdetailmodel.CreateOrderDetail{
+			Input: orderdetailmodel.OrderDetail{
 				OrderId:    0,
 				FoodOrigin: "12",
 				Price:      12,
@@ -38,7 +38,7 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 			Actual:   nil,
 		},
 		{
-			Input: orderdetailmodel.CreateOrderDetail{
+			Input: orderdetailmodel.OrderDetail{
 				OrderId:    1,
 				FoodOrigin: "",
 				Price:      12,
@@ -47,7 +47,7 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 			Actual:   nil,
 		},
 		{
-			Input: orderdetailmodel.CreateOrderDetail{
+			Input: orderdetailmodel.OrderDetail{
 				OrderId:    1,
 				FoodOrigin: "222",
 				Price:      0,
@@ -56,7 +56,7 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 			Actual:   nil,
 		},
 		{
-			Input: orderdetailmodel.CreateOrderDetail{
+			Input: orderdetailmodel.OrderDetail{
 				OrderId:    1,
 				FoodOrigin: "222",
 				Price:      12,
@@ -65,7 +65,7 @@ func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 			Actual:   nil,
 		},
 		{
-			Input: orderdetailmodel.CreateOrderDetail{
+			Input: orderdetailmodel.OrderDetail{
 				OrderId:    2,
 				FoodOrigin: "222",
 				Price:      12,

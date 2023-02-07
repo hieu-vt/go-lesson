@@ -7,7 +7,7 @@ import (
 )
 
 type OrderDetailStore interface {
-	Create(ctx context.Context, orderDetail *orderdetailmodel.CreateOrderDetail) error
+	Create(ctx context.Context, orderDetail *orderdetailmodel.OrderDetail) error
 }
 
 type orderDetailBiz struct {
@@ -20,7 +20,7 @@ func NewOrderDetailBiz(store OrderDetailStore) *orderDetailBiz {
 	}
 }
 
-func (biz *orderDetailBiz) CreateOrderDetail(ctx context.Context, data *orderdetailmodel.CreateOrderDetail) error {
+func (biz *orderDetailBiz) CreateOrderDetail(ctx context.Context, data *orderdetailmodel.OrderDetail) error {
 	if err := data.ValidateOrderDetailData(); err != nil {
 		return common.ErrNoPermission(err)
 	}

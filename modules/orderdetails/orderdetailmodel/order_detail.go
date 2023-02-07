@@ -15,15 +15,16 @@ const (
 	CannotUnMarshalFoodOrigin = "cannot unmarshal food origin"
 )
 
-//type FoodOrigin struct {
-//	Id           int     `json:"id" gorm:"column:id;"`
-//	RestaurantId int     `json:"restaurantId" gorm:"column:restaurant_id;"`
-//	CategoryId   int     `json:"categoryId" gorm:"column:category_id;"`
-//	Name         string  `json:"name" gorm:"column:name;"`
-//	Description  string  `json:"description" gorm:"column:description;"`
-//	price        float32 `json:"price" gorm:"column:price;"`
-//	total        int     `json:"total" gorm:"-"`
-//}
+type FoodOrigin struct {
+	Id           string  `json:"id" gorm:"column:id;"`
+	RestaurantId string  `json:"restaurantId" gorm:"column:restaurant_id;"`
+	CategoryId   string  `json:"categoryId" gorm:"column:category_id;"`
+	Name         string  `json:"name" gorm:"column:name;"`
+	Description  string  `json:"description" gorm:"column:description;"`
+	price        float32 `json:"price" gorm:"column:price;"`
+	total        int     `json:"total" gorm:"-"`
+}
+
 //
 //func (fdOrigin FoodOrigin) Marshal() (error, string) {
 //	 jsonFdOrigin, err := json.Marshal(fdOrigin)
@@ -59,19 +60,18 @@ func (OrderDetail) TableName() string {
 }
 
 type CreateOrderDetail struct {
-	common.SqlModel `json:",inline"`
-	OrderId         int     `json:"orderId" gorm:"column:order_id;"`
-	FoodOrigin      string  `json:"foodOrigin" gorm:"column:food_origin"`
-	Price           float32 `json:"price" gorm:"column:price"`
-	Quantity        int     `json:"quantity" gorm:"column:quantity"`
-	Discount        float32 `json:"discount" gorm:"column:quantity"`
+	OrderId    string      `json:"orderId" gorm:"column:order_id;"`
+	FoodOrigin *FoodOrigin `json:"foodOrigin" gorm:"column:food_origin"`
+	Price      float32     `json:"price" gorm:"column:price"`
+	Quantity   int         `json:"quantity" gorm:"column:quantity"`
+	Discount   float32     `json:"discount" gorm:"column:quantity"`
 }
 
 func (CreateOrderDetail) TableName() string {
 	return OrderDetail{}.TableName()
 }
 
-func (orderDetail *CreateOrderDetail) ValidateOrderDetailData() error {
+func (orderDetail *OrderDetail) ValidateOrderDetailData() error {
 	orderDetail.FoodOrigin = strings.TrimSpace(orderDetail.FoodOrigin)
 
 	if orderDetail.OrderId <= 0 {
@@ -89,6 +89,6 @@ func (orderDetail *CreateOrderDetail) ValidateOrderDetailData() error {
 	return nil
 }
 
-func (orderDetail *CreateOrderDetail) Mask() {
+func (orderDetail *OrderDetail) Mask() {
 	orderDetail.GenUID(common.DbTypeOrder)
 }
