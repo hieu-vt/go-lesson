@@ -26,7 +26,7 @@ func HandleOrderAfterClientOrder(appCtx component.AppContext) consumerJob {
 					ShipperId: orderData.ShipperId,
 					UserId:    orderData.UserId,
 				},
-				Type: common.OrderStart,
+				Type: common.WaitingForShipper,
 			}))
 
 			return nil
