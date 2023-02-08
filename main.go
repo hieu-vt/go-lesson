@@ -157,6 +157,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 		orders.POST("", ginorder.CreateOrder(appCtx))
 		orders.POST("/detail", ginorderdetail.CreateOrderDetail(appCtx))
 		orders.POST("/tracking", ginordertracking.CreateOrderTracking(appCtx))
+		orders.GET("", ginorder.GetOrders(appCtx))
 	}
 
 	v1.GET("/encode-uid", func(c *gin.Context) {
