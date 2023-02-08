@@ -11,16 +11,16 @@ import (
 
 func GetOrders(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userId, err := common.FromBase58(c.Param("userId"))
-
-		if err != nil {
-			panic(err)
-		}
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
 		store := orderstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := orderbiz.NewGetOrderBiz(store)
 
-		data, err := biz.GetOrders(c, int(userId.GetLocalID()))
+		data, err := biz.GetOrders(c, int(requester.GetUserId()))
+
+		if err != nil {
+			panic(err)
+		}
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
 	}

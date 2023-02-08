@@ -3,6 +3,7 @@ package orderbiz
 import (
 	"context"
 	"lesson-5-goland/common"
+	"lesson-5-goland/component"
 	"lesson-5-goland/modules/order/ordermodel"
 )
 
@@ -19,6 +20,8 @@ func NewGetOrderBiz(store orderStore) *getOrderBiz {
 }
 
 func (biz *getOrderBiz) GetOrders(ctx context.Context, userId int) (*[]ordermodel.GetOrderType, error) {
+	ctx, span := component.Tracer.Start(ctx, "order.biz.GetOrder")
+	defer span.End()
 	orders, err := biz.store.Find(ctx, userId)
 
 	if err != nil {

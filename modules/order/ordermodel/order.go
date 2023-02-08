@@ -16,9 +16,10 @@ import (
 type Order struct {
 	common.SqlModel `json:",inline"`
 
-	UserId     int     `json:"-" gorm:"user_id"`
-	ShipperId  int     `json:"-" gorm:"shipper_id"`
-	TotalPrice float64 `json:"totalPrice" gorm:"column:total_price"`
+	UserId         int     `json:"-" gorm:"user_id"`
+	ShipperId      int     `json:"-" gorm:"shipper_id"`
+	TotalPrice     float64 `json:"totalPrice" gorm:"column:total_price"`
+	NameRestaurant string  `json:"name" gorm:"column:name;"`
 }
 
 const (

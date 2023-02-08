@@ -32,7 +32,7 @@ func (biz *orderDetailBiz) CreateOrderDetail(ctx context.Context, data *orderdet
 		return common.ErrNoPermission(err)
 	}
 
-	order, err := biz.orderStore.FindByCondition(ctx, map[string]interface{}{"orderId": data.OrderId})
+	order, err := biz.orderStore.FindByCondition(ctx, map[string]interface{}{"id": data.OrderId})
 
 	if err != nil {
 		return common.ErrEntityNotFound(ordermodel.TableOrderName, err)

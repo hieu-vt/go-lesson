@@ -5,11 +5,10 @@ import (
 )
 
 type GetOrderType struct {
-	Order      `json:",inline"`
+	TotalPrice int                 `json:"totalPrice" gorm:"column:total_price"`
 	State      common.TrackingType `json:"state" gorm:"column:state"`
+	Name       string              `json:"restaurantName" gorm:"column:name;"`
 	FoodOrigin string              `json:"foodOrigin" gorm:"column:food_origin"`
-}
-
-func (gOrderType *GetOrderType) Mask() {
-	gOrderType.GenUID(common.DbTypeOrder)
+	Logo       *common.Image       `json:"logo" gorm:"column:logo;"`
+	Cover      *common.Images      `json:"cover" gorm:"column:cover;"`
 }
