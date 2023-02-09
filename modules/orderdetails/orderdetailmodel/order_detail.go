@@ -17,7 +17,7 @@ const (
 
 type FoodOrigin struct {
 	Id           string  `json:"id" gorm:"column:id;"`
-	RestaurantId string  `json:"restaurantId" gorm:"column:restaurant_id;"`
+	RestaurantId int     `json:"restaurantId" gorm:"column:restaurant_id;"`
 	CategoryId   string  `json:"categoryId" gorm:"column:category_id;"`
 	Name         string  `json:"name" gorm:"column:name;"`
 	Description  string  `json:"description" gorm:"column:description;"`
