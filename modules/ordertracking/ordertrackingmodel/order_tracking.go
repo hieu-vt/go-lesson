@@ -18,11 +18,20 @@ type OrderTracking struct {
 }
 
 type CreateOrderTracking struct {
-	OrderId string              `json:"orderId"`
+	OrderId int                 `json:"orderId"`
 	State   common.TrackingType `json:"state"`
 }
 
+type UpdateOrderTracking struct {
+	OrderId int                 `json:"orderId" gorm:"column:order_id"`
+	State   common.TrackingType `json:"state" gorm:"column:state"`
+}
+
 func (OrderTracking) TableName() string {
+	return TableNameOrderTracking
+}
+
+func (UpdateOrderTracking) TableName() string {
 	return TableNameOrderTracking
 }
 
