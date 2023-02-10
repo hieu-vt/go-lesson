@@ -8,7 +8,7 @@ import (
 )
 
 type orderStore interface {
-	Find(ctx context.Context, userId int) (*[]ordermodel.GetOrderType, error)
+	Find(ctx context.Context, userId int, paging common.Paging) ([]ordermodel.GetOrderType, error)
 }
 
 type getOrderBiz struct {
@@ -19,10 +19,14 @@ func NewGetOrderBiz(store orderStore) *getOrderBiz {
 	return &getOrderBiz{store: store}
 }
 
-func (biz *getOrderBiz) GetOrders(ctx context.Context, userId int) (*[]ordermodel.GetOrderType, error) {
+func (biz *getOrderBiz) GetOrders(
+	ctx context.Context,
+	userId int,
+	paging common.Paging,
+) ([]ordermodel.GetOrderType, error) {
 	ctx, span := component.Tracer.Start(ctx, "order.biz.GetOrder")
 	defer span.End()
-	orders, err := biz.store.Find(ctx, userId)
+	orders, err := biz.store.Find(ctx, userId, paging)
 
 	if err != nil {
 		return nil, common.ErrEntityNotFound(ordermodel.TableOrderName, err)

@@ -13,15 +13,31 @@ func GetOrders(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
+		var paging common.Paging
+
+		if err := c.ShouldBind(&paging); err != nil {
+			panic(common.ErrInvalidRequest(err))
+		}
+
+		paging.FullFill()
+
 		store := orderstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := orderbiz.NewGetOrderBiz(store)
 
-		data, err := biz.GetOrders(c, int(requester.GetUserId()))
+		result, err := biz.GetOrders(c, int(requester.GetUserId()), paging)
 
 		if err != nil {
 			panic(err)
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
+		for i := range result {
+			result[i].Mask()
+
+			if paging.Limit <= len(result) {
+				paging.NextCursor = result[i].FakeId.String()
+			}
+		}
+
+		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, nil))
 	}
 }
