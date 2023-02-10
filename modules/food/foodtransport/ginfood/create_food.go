@@ -23,18 +23,24 @@ func CreateFood(appCtx component.AppContext) gin.HandlerFunc {
 
 		store := foodstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := foodbiz.CreateFoodStore(store)
+		var food foodmodel.Food
 
-		if err := biz.Create(c,
-			&foodmodel.Food{
-				Name:         body.Name,
-				Description:  body.Description,
-				RestaurantId: int(uuidRestaurantID.GetLocalID()),
-				Price:        body.Price,
-				Images:       body.Images},
+		food = foodmodel.Food{
+			Name:         body.Name,
+			Description:  body.Description,
+			RestaurantId: int(uuidRestaurantID.GetLocalID()),
+			Price:        body.Price,
+			Images:       body.Images}
+
+		if err := biz.Create(
+			c,
+			&food,
 		); err != nil {
 			panic(err)
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
+		food.Mask()
+
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(food.FakeId))
 	}
 }

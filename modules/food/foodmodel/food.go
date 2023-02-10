@@ -28,3 +28,7 @@ type CreateFood struct {
 func (*CreateFood) TableName() string {
 	return "foods"
 }
+
+func (f *Food) Mask() {
+	f.GenUID(common.DbTypeFood)
+}

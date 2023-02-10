@@ -6,6 +6,7 @@ const (
 	DbTypeCategory   = 3
 	DbTypeUser       = 4
 	DbTypeOrder      = 5
+	DbTypeCart       = 6
 )
 
 const (
