@@ -12,7 +12,7 @@ import (
 
 func CreateOrderTracking(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var data ordertrackingmodel.CreateOrderTracking
+		var data ordertrackingmodel.CreateOrderTrackingParams
 
 		if err := c.ShouldBind(&data); err != nil {
 			panic(err)

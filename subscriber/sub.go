@@ -69,8 +69,11 @@ func (engine *consumerEngine) Start() error {
 	engine.startSubTopic(common.TopicEmitEvenWhenUserCreateOrderSuccess,
 		true,
 		EmitRealtimeAfterOrderEnd(engine.appCtx, engine.rtEngine),
-		// Pubsub update order
 	)
+
+	engine.startSubTopic(common.TopicCreateOrderTrackingAfterCreateOrderDetail,
+		true,
+		CreateOrderTrackingAfterCreateOrderDetail(engine.appCtx))
 
 	return nil
 }

@@ -22,6 +22,11 @@ type CreateOrderTracking struct {
 	State   common.TrackingType `json:"state"`
 }
 
+type CreateOrderTrackingParams struct {
+	OrderId string              `json:"orderId"`
+	State   common.TrackingType `json:"state"`
+}
+
 type UpdateOrderTracking struct {
 	OrderId int                 `json:"orderId" gorm:"column:order_id"`
 	State   common.TrackingType `json:"state" gorm:"column:state"`

@@ -22,7 +22,7 @@ func CreateOrderDetail(appCtx component.AppContext) gin.HandlerFunc {
 
 		store := orderdetailstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		orderStore := orderstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := orderdetailbiz.NewOrderDetailBiz(store, orderStore)
+		biz := orderdetailbiz.NewOrderDetailBiz(store, orderStore, appCtx.GetPubsub())
 
 		orderId, err := common.FromBase58(orderDetail.OrderId)
 
