@@ -7,7 +7,7 @@ import (
 )
 
 type updateCartStore interface {
-	Update(ctx context.Context, foodId int, userId int, updateData *cartmodel.UpdateCart) error
+	Update(ctx context.Context, userId int, foodId int, updateData *cartmodel.UpdateCart) error
 }
 
 type updateCartBiz struct {
@@ -19,7 +19,7 @@ func NewBizUpdateCart(store updateCartStore) *updateCartBiz {
 }
 
 func (biz *updateCartBiz) UpdateCart(ctx context.Context, userId int, foodId int, updateData *cartmodel.UpdateCart) error {
-	if err := biz.store.Update(ctx, foodId, userId, updateData); err != nil {
+	if err := biz.store.Update(ctx, userId, foodId, updateData); err != nil {
 		return common.ErrCannotUpdateEntity(cartmodel.CartTableName, err)
 	}
 

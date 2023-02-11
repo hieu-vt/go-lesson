@@ -18,7 +18,7 @@ func UpdateCart(appCtx component.AppContext) gin.HandlerFunc {
 			panic(common.ErrInvalidRequest(err))
 		}
 
-		var body *cartmodel.UpdateCart
+		var body cartmodel.UpdateCart
 
 		if err := c.ShouldBind(&body); err != nil {
 			panic(err)
@@ -29,7 +29,7 @@ func UpdateCart(appCtx component.AppContext) gin.HandlerFunc {
 
 		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
-		if err := biz.UpdateCart(c, int(foodId.GetLocalID()), requester.GetUserId(), body); err != nil {
+		if err := biz.UpdateCart(c, requester.GetUserId(), int(foodId.GetLocalID()), &body); err != nil {
 			panic(err)
 		}
 

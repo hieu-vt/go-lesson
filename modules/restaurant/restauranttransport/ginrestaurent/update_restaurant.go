@@ -22,7 +22,6 @@ func UpdateRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 
 		if err := c.ShouldBind(&body); err != nil {
 			panic(common.ErrInvalidRequest(err))
-			return
 		}
 
 		store := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
