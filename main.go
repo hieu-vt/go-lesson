@@ -165,6 +165,9 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 	carts := v1.Group("/carts", middleware.RequiredAuth(appCtx))
 	{
 		carts.POST("", gincart.AddToCart(appCtx))
+		carts.PUT("/:id", gincart.UpdateCart(appCtx))
+		carts.DELETE("", gincart.DeleteCart(appCtx))
+		carts.GET("", gincart.ListCart(appCtx))
 	}
 
 	v1.GET("/encode-uid", func(c *gin.Context) {

@@ -1,5 +1,5 @@
 package cartmodel
 
 type DeleteCart struct {
-	ids []int `json:"ids"`
+	Ids []int `json:"ids"`
 }

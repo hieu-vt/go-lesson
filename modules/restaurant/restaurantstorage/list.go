@@ -15,7 +15,7 @@ func (s *sqlStore) ListRestaurantWithCondition(ctx context.Context, condition ma
 	db := s.db
 
 	for i := range moreKeys {
-		db = s.db.Preload(moreKeys[i])
+		db = db.Preload(moreKeys[i])
 	}
 
 	db = db.Table(restaurantmodel.Restaurant{}.TableName()).Order("id desc").Where(condition).Where("status in (1)")

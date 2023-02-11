@@ -80,6 +80,13 @@ func DecomposeUID(s string) (UID, error) {
 }
 
 func FromBase58(s string) (UID, error) {
+	if s == "" {
+		return UID{
+			localID:    0,
+			objectType: 0,
+			shardID:    0,
+		}, nil
+	}
 	return DecomposeUID(string(base58.Decode(s)))
 }
 

@@ -65,7 +65,7 @@ type testingItem struct {
 func TestOrderDetailBiz_CreateOrderDetail(t *testing.T) {
 	store := &mockOrderDetailStore{}
 	orderStore := &mockOrderStore{}
-	biz := NewOrderDetailBiz(store, orderStore)
+	biz := NewOrderDetailBiz(store, orderStore, nil)
 
 	dataTable := []testingItem{
 		{
