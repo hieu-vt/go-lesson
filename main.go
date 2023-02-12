@@ -80,6 +80,19 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 
 	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub(), reddit.NewRedditEngine())
 	r := gin.Default()
+	// bypass cors
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
 
 	log.WithField("text", "Hello").Info("My name is Hieu 1")
 	log.Info("hello 1111")
@@ -150,6 +163,7 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 	foods := v1.Group("/foods", middleware.RequiredAuth(appCtx))
 	{
 		foods.POST("", ginfood.CreateFood(appCtx))
+		foods.GET("", ginfood.GetFoods(appCtx))
 	}
 
 	// Order

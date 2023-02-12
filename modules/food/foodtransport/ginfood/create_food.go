@@ -22,7 +22,7 @@ func CreateFood(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		store := foodstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := foodbiz.CreateFoodStore(store)
+		biz := foodbiz.NewBizCreateFood(store)
 		var food foodmodel.Food
 
 		food = foodmodel.Food{
@@ -32,9 +32,9 @@ func CreateFood(appCtx component.AppContext) gin.HandlerFunc {
 			Price:        body.Price,
 			Images:       body.Images}
 
-		if err := biz.Create(
+		if err := biz.CreateFood(
 			c,
-			&food,
+			food,
 		); err != nil {
 			panic(err)
 		}

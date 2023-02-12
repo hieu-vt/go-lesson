@@ -9,10 +9,10 @@ type Food struct {
 	Name            string         `json:"name" gorm:"column:name"`
 	Description     string         `json:"description" gorm:"column:description"`
 	Price           float64        `json:"price" gorm:"column:price"`
-	Images          *common.Images `json:",inline" gorm:"column:images"`
+	Images          *common.Images `json:"images" gorm:"column:images"`
 }
 
-func (*Food) TableName() string {
+func (Food) TableName() string {
 	return "foods"
 }
 
