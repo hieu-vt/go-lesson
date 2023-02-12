@@ -22,7 +22,7 @@ func CreateFood(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		store := foodstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := foodbiz.NewBizCreateFood(store)
+		biz := foodbiz.NewBizCreateFood(store, appCtx.GetPubsub())
 		var food foodmodel.Food
 
 		food = foodmodel.Food{

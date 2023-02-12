@@ -75,6 +75,10 @@ func (engine *consumerEngine) Start() error {
 		true,
 		CreateOrderTrackingAfterCreateOrderDetail(engine.appCtx))
 
+	engine.startSubTopic(common.TopicCreateRestaurantFoodsAfterCreateFood,
+		true,
+		CreateRestaurantFoodsAfterCreateFood(engine.appCtx))
+
 	return nil
 }
 
