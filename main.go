@@ -18,6 +18,7 @@ import (
 	"lesson-5-goland/component/uploadprovider"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/carts/carttransport/gincart"
+	"lesson-5-goland/modules/categories/categoriestransport/gincategories"
 	"lesson-5-goland/modules/food/foodtransport/ginfood"
 	"lesson-5-goland/modules/order/ordertransport/ginorder"
 	"lesson-5-goland/modules/orderdetails/orderdetailtransport/ginorderdetail"
@@ -182,6 +183,14 @@ func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey s
 		carts.PUT("/:id", gincart.UpdateCart(appCtx))
 		carts.DELETE("", gincart.DeleteCart(appCtx))
 		carts.GET("", gincart.ListCart(appCtx))
+	}
+
+	categories := v1.Group("/categories", middleware.RequiredAuth(appCtx))
+	{
+		categories.POST("", gincategories.CreateCategories(appCtx))
+		categories.DELETE("/:id", gincategories.DeleteCategory(appCtx))
+		categories.PUT("/:id", gincategories.UpdateCategory(appCtx))
+		categories.GET("", gincategories.GetCategories(appCtx))
 	}
 
 	v1.GET("/encode-uid", func(c *gin.Context) {
