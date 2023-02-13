@@ -18,19 +18,16 @@ func UploadFile(appCtx component.AppContext) gin.HandlerFunc {
 
 		file, err := fileHeader.Open()
 
-		if err != nil {
-			panic(common.ErrInvalidRequest(err))
-		}
 		defer file.Close() // we can close here
 
-		dataBytes := make([]byte, fileHeader.Size)
-		if _, err := file.Read(dataBytes); err != nil {
-			panic(common.ErrInvalidRequest(err))
-		}
+		//dataBytes := make([]byte, fileHeader.Size)
+		//if _, err := file.Read(dataBytes); err != nil {
+		//	panic(common.ErrInvalidRequest(err))
+		//}
 
 		//imgStore := uploadstorage.NewSQLStore(db)
-		biz := uploadbusiness.NewUploadBusiness(appCtx.UploadProvider())
-		img, err := biz.UploadFile(c.Request.Context(), dataBytes, folder, fileHeader.Filename)
+		biz := uploadbusiness.NewUploadBusiness(appCtx.UploadProvider(), appCtx.GetBuketFirebaseStorage())
+		img, err := biz.UploadFileFirebase(c.Request.Context(), file, folder, fileHeader.Filename)
 
 		if err != nil {
 			panic(err)

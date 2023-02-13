@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -15,7 +16,8 @@ import (
 	"gorm.io/gorm"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
-	"lesson-5-goland/component/uploadprovider"
+	"lesson-5-goland/component/uploadprovider/firebasestorage"
+	"lesson-5-goland/component/uploadprovider/s3"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/carts/carttransport/gincart"
 	"lesson-5-goland/modules/categories/categoriestransport/gincategories"
@@ -61,25 +63,44 @@ func main() {
 	S3Secret := os.Getenv("S3SecretStr")
 	S3Domain := os.Getenv("S3DomainStr")
 	secretKey := os.Getenv("SecretKeyStr")
+	projectFirebaseStorageID := os.Getenv("ProjectFirebaseStorageID")
+	storageBucket := os.Getenv("StorageBucket")
+	firebaseStorageDomain := os.Getenv("FirebaseStorageDomain")
+	CredentialsFileName := os.Getenv("CredentialsFileName")
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	s3Provider := uploadprovider.NewS3Provider(S3BucketName, S3Region, S3ApiKey, S3Secret, S3Domain)
+	s3Provider := s3.NewS3Provider(S3BucketName, S3Region, S3ApiKey, S3Secret, S3Domain)
+	firebaseBucket := firebasestorage.NewFirebaseStorage(
+		context.Background(),
+		projectFirebaseStorageID,
+		storageBucket,
+		firebaseStorageDomain,
+		CredentialsFileName,
+	)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	if error := runService(db, s3Provider, secretKey); error != nil {
+	if error := runService(db, s3Provider, secretKey, firebaseBucket); error != nil {
 		log.Fatalln(error)
 	}
 }
 
-func runService(db *gorm.DB, provider uploadprovider.UploadProvider, secretKey string) error {
+func runService(db *gorm.DB, provider s3.UploadProvider, secretKey string, firebaseBucket firebasestorage.UploadFirebaseStorageProvider) error {
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetOutput(os.Stdout)
 
-	appCtx := component.NewAppContext(db, provider, secretKey, pubsublocal.NewPubSub(), reddit.NewRedditEngine())
+	appCtx := component.NewAppContext(
+		db,
+		provider,
+		secretKey,
+		pubsublocal.NewPubSub(),
+		reddit.NewRedditEngine(),
+		firebaseBucket,
+	)
+
 	r := gin.Default()
 	// bypass cors
 	r.Use(func(c *gin.Context) {
