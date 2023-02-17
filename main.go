@@ -200,7 +200,7 @@ func runService(db *gorm.DB,
 		foods.POST("/:id/ratings", ginfoodrating.CreateFoodRating(appCtx))
 		foods.PUT("/:id/ratings", ginfoodrating.UpdateRating(appCtx))
 		foods.DELETE("/:id/ratings", ginfoodrating.DeleteRating(appCtx))
-		foods.DELETE("/ratings", ginfoodrating.ListFoodRating(appCtx))
+		foods.GET("/:id/ratings", ginfoodrating.ListFoodRating(appCtx))
 	}
 
 	// Order

@@ -6,10 +6,10 @@ import (
 	"lesson-5-goland/modules/foodratings/foodratingsmodel"
 )
 
-func (s *sqlStore) List(ctx context.Context, userId int, paging common.Paging) ([]foodratingsmodel.FoodRatings, error) {
+func (s *sqlStore) List(ctx context.Context, foodId int, paging *common.Paging) ([]foodratingsmodel.FoodRatings, error) {
 	db := s.db
 
-	db = db.Table(foodratingsmodel.FoodRatings{}.TableName()).Where("status = (1)")
+	db = db.Table(foodratingsmodel.FoodRatings{}.TableName()).Where("status = (1)").Where("food_id = ?", foodId)
 
 	if err := db.Count(&paging.Total).Error; err != nil {
 		return nil, common.ErrDB(err)
