@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package demo;
+
+option go_package = "demo/";
+
+// The request message containing the user's name
+message RestaurantLikeStarRequest {
+  repeated int32 reIds = 1;
+}
+
+message RestaurantLikeStarResponse {
+  map<int32, int32> result = 1;
+}
+
+service RestaurantLikeService {
+  rpc GetRestaurantLikeStar(RestaurantLikeStarRequest) returns (RestaurantLikeStarResponse) {}
+}

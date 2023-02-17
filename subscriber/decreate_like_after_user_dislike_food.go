@@ -1,0 +1,20 @@
+package subscriber
+
+import (
+	"context"
+	"lesson-5-goland/component"
+	"lesson-5-goland/modules/food/foodstorage"
+	"lesson-5-goland/pubsub"
+)
+
+func RunDecreaseLikeCountAfterUserDisLikeFood(appCtx component.AppContext) consumerJob {
+	return consumerJob{
+		Title: "Increase like count after user likes restaurant",
+		Hld: func(ctx context.Context, message *pubsub.Message) error {
+			store := foodstorage.NewSqlStore(appCtx.GetMainDBConnection())
+			likeData := message.Data().(HasFoodId)
+			id := likeData.GetFoodId()
+			return store.DeCreateFoodLikeCount(ctx, id)
+		},
+	}
+}
