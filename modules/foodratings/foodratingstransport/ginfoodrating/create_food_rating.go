@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
+	"lesson-5-goland/modules/foodratings/foodratingsbiz"
 	"lesson-5-goland/modules/foodratings/foodratingsmodel"
 	"lesson-5-goland/modules/foodratings/foodratingstorage"
 	"net/http"
@@ -35,6 +36,11 @@ func CreateFoodRating(appCtx component.AppContext) gin.HandlerFunc {
 			Comment: body.Comment,
 		}
 		//biz
+		biz := foodratingsbiz.NewCreateFoodRatingBiz(store)
+
+		if err := biz.CreateFoodRating(c, &newFoodRating); err != nil {
+			panic(err)
+		}
 
 		newFoodRating.Mask()
 

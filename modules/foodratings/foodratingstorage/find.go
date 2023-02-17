@@ -6,7 +6,7 @@ import (
 	"lesson-5-goland/modules/foodratings/foodratingsmodel"
 )
 
-func (s *sqlStore) Find(ctx context.Context, ratingId int, moreKeys ...string) (foodratingsmodel.FoodRatings, error) {
+func (s *sqlStore) Find(ctx context.Context, condition map[string]interface{}, moreKeys ...string) (foodratingsmodel.FoodRatings, error) {
 	db := s.db
 
 	for i := range moreKeys {
@@ -14,7 +14,7 @@ func (s *sqlStore) Find(ctx context.Context, ratingId int, moreKeys ...string) (
 	}
 
 	var result foodratingsmodel.FoodRatings
-	if err := db.Where("id = (?)", ratingId).First(&result).Error; err != nil {
+	if err := db.Where(condition).First(&result).Error; err != nil {
 		return result, common.ErrDB(err)
 	}
 

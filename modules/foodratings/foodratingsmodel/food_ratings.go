@@ -16,8 +16,6 @@ type CreateFoodRatings struct {
 }
 
 type UpdateFoodRatings struct {
-	UserId  int     `json:"userId" gorm:"column:user_id"`
-	FoodId  int     `json:"foodId" gorm:"column:food_id"`
 	Point   float32 `json:"point" gorm:"column:point"`
 	Comment string  `json:"comment" gorm:"column:comment"`
 }
