@@ -23,6 +23,7 @@ import (
 	"lesson-5-goland/modules/categories/categoriestransport/gincategories"
 	"lesson-5-goland/modules/food/foodtransport/ginfood"
 	ginlikefood "lesson-5-goland/modules/foodlike/foodliketransporter/ginfoodlike"
+	"lesson-5-goland/modules/foodratings/foodratingstransport/ginfoodrating"
 	"lesson-5-goland/modules/order/ordertransport/ginorder"
 	"lesson-5-goland/modules/orderdetails/orderdetailtransport/ginorderdetail"
 	"lesson-5-goland/modules/ordertracking/ordertrackingtranport/ginordertracking"
@@ -195,6 +196,8 @@ func runService(db *gorm.DB,
 		foods.POST("/:id/like", ginlikefood.UserLikeRestaurant(appCtx))
 		// unlike Food
 		foods.DELETE("/:id/unlike", ginlikefood.UserUnLikeRestaurant(appCtx))
+		// rating
+		foods.POST("/:id/ratings", ginfoodrating.CreateFoodRating(appCtx))
 	}
 
 	// Order

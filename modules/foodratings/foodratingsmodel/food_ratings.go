@@ -11,10 +11,8 @@ type FoodRatings struct {
 }
 
 type CreateFoodRatings struct {
-	UserId  int     `json:"userId" gorm:"column:user_id"`
-	FoodId  int     `json:"foodId" gorm:"column:food_id"`
-	Point   float32 `json:"point" gorm:"column:point"`
-	Comment string  `json:"comment" gorm:"column:comment"`
+	Point   float32 `json:"point"`
+	Comment string  `json:"comment"`
 }
 
 type UpdateFoodRatings struct {
@@ -30,4 +28,8 @@ func (FoodRatings) TableName() string {
 
 func (UpdateFoodRatings) TableName() string {
 	return "food_ratings"
+}
+
+func (fR *FoodRatings) Mask() {
+	fR.GenUID(common.DbTypeFoodRating)
 }
