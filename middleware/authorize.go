@@ -1,14 +1,14 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
-	jwt2 "lesson-5-goland/component/tokenprovider/jwt"
-	"lesson-5-goland/modules/user/userstorage"
-	"lesson-5-goland/reddit"
+	"lesson-5-goland/modules/user/usermodel"
+	"lesson-5-goland/plugin/jwtprovider"
 	"strings"
 )
 
@@ -31,11 +31,15 @@ func extractTokenFromHeaderString(s string) (string, error) {
 	return parts[1], nil
 }
 
+type AuthenStore interface {
+	FindUser(ctx context.Context, conditions map[string]interface{}, moreInfo ...string) (*usermodel.User, error)
+}
+
 // 1. Get token from header
 // 2. Validate token and parse to payload
 // 3. From the token payload, we use user_id to find from DB
-func RequiredAuth(appCtx component.AppContext) func(c *gin.Context) {
-	tokenProvider := jwt2.NewTokenJwt(appCtx.SecretKey())
+func RequiredAuth(sc goservice.ServiceContext, authStore AuthenStore) func(c *gin.Context) {
+	tokenProvider := sc.MustGet(common.JwtProvider).(jwtprovider.Provider)
 
 	return func(c *gin.Context) {
 		token, err := extractTokenFromHeaderString(c.GetHeader("Authorization"))
@@ -44,16 +48,14 @@ func RequiredAuth(appCtx component.AppContext) func(c *gin.Context) {
 			panic(err)
 		}
 
-		db := appCtx.GetMainDBConnection()
-		store := userstorage.NewSqlStore(db)
-		userCache := reddit.NewUserCache(appCtx.GetReddit(), store)
+		//userCache := reddit.NewUserCache(appCtx.GetReddit(), authStore)
 
 		payload, err := tokenProvider.Validate(token)
 		if err != nil {
 			panic(err)
 		}
 
-		user, err := userCache.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
+		user, err := authStore.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
 
 		if err != nil {
 			panic(err)

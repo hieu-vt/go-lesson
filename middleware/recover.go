@@ -3,10 +3,9 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 )
 
-func Recover(ac component.AppContext) gin.HandlerFunc {
+func Recover() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {

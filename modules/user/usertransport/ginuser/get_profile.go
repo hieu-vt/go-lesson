@@ -1,13 +1,13 @@
 package ginuser
 
 import (
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 	"net/http"
 )
 
-func GetProfile(appCtx component.AppContext) gin.HandlerFunc {
+func GetProfile(sc goservice.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		data := c.MustGet(common.CurrentUser).(common.Requester)
 

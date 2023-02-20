@@ -2,11 +2,10 @@ package userbiz
 
 import (
 	"context"
-	"fmt"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
-	"lesson-5-goland/component/tokenprovider"
 	"lesson-5-goland/modules/user/usermodel"
+	"lesson-5-goland/plugin/jwtprovider"
 	"lesson-5-goland/reddit"
 )
 
@@ -17,16 +16,16 @@ type LoginStore interface {
 type loginBiz struct {
 	store         LoginStore
 	hasher        Hasher
-	tokenProvider tokenprovider.Provider
+	tokenProvider jwtprovider.Provider
 	expiry        int
 	reddit        reddit.RedditEngine
 }
 
-func NewLoginBiz(store LoginStore, hasher Hasher, tokenProvider tokenprovider.Provider, expiry int, reddit reddit.RedditEngine) *loginBiz {
+func NewLoginBiz(store LoginStore, hasher Hasher, tokenProvider jwtprovider.Provider, expiry int, reddit reddit.RedditEngine) *loginBiz {
 	return &loginBiz{store: store, hasher: hasher, tokenProvider: tokenProvider, expiry: expiry, reddit: reddit}
 }
 
-func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (*tokenprovider.Token, error) {
+func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (jwtprovider.Token, error) {
 	ctxTrace, span := component.Tracer.Start(ctx, "user.biz.Login")
 	defer span.End()
 	user, err := biz.store.FindUser(ctxTrace, map[string]interface{}{"email": body.Email})
@@ -50,9 +49,9 @@ func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (*tok
 		return nil, usermodel.ErrUsernameOrPasswordInvalid
 	}
 
-	payload := tokenprovider.TokenPayload{
-		UserId: user.Id,
-		Role:   string(user.Role),
+	payload := &common.TokenPayload{
+		UId:   user.Id,
+		URole: string(user.Role),
 	}
 
 	token, err := biz.tokenProvider.Generate(payload, biz.expiry)
@@ -60,7 +59,7 @@ func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (*tok
 	if err != nil {
 		return nil, err
 	}
-	biz.reddit.Save(fmt.Sprintf("%d", user.Id), user)
+	//biz.reddit.Save(fmt.Sprintf("%d", user.Id), user)
 
 	return token, nil
 }

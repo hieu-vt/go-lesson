@@ -12,6 +12,9 @@ const (
 
 const (
 	CurrentUser = "user"
+
+	DBMain      = "mysql"
+	JwtProvider = "jwt-provider"
 )
 
 type Requester interface {
