@@ -1,16 +1,16 @@
 package ginlikerestaurant
 
 import (
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 	restaurantlikebiz "lesson-5-goland/modules/restaurantlike/business"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
 	restaurantlikestorage "lesson-5-goland/modules/restaurantlike/storage"
 	"net/http"
 )
 
-func UserUnLikeRestaurant(appCtx component.AppContext) gin.HandlerFunc {
+func UserUnLikeRestaurant(sc goservice.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		uidRestaurant, err := common.FromBase58(c.Param("id"))
 
@@ -25,7 +25,7 @@ func UserUnLikeRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		data.RestaurantId = int(uidRestaurant.GetLocalID())
 		data.UserId = requester.GetUserId()
 
-		store := restaurantlikestorage.NewSqlStore(appCtx.GetMainDBConnection())
+		store := restaurantlikestorage.NewSqlStore(common.GetMainDb(sc))
 		//deCreateLikeRestaurant := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
 		biz := restaurantlikebiz.NewUnlikeRestaurantStore(store, appCtx.GetPubsub())
 

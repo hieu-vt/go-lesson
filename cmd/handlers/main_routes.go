@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"lesson-5-goland/common"
 	"lesson-5-goland/middleware"
+	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
 	"lesson-5-goland/modules/user/userstorage"
 	"lesson-5-goland/modules/user/usertransport/ginuser"
 	"net/http"
@@ -28,13 +29,15 @@ func MainRoute(router *gin.Engine, sc goservice.ServiceContext) {
 		v1.POST("/login", ginuser.Login(sc))
 		v1.GET("/profile", middleware.RequiredAuth(sc, userStore), ginuser.GetProfile(sc))
 		//
-		//restaurants := v1.Group("/restaurants")
-		//{
-		//	restaurants.POST("", restaurantgin.CreateRestaurantHandler(sc))
-		//	restaurants.GET("", restaurantgin.ListRestaurant(sc))
-		//	restaurants.GET("/:restaurant_id", restaurantgin.GetRestaurantHandler(sc))
-		//	restaurants.PUT("/:restaurant_id", restaurantgin.UpdateRestaurantHandler(sc))
-		//	restaurants.DELETE("/:restaurant_id", restaurantgin.DeleteRestaurantHandler(sc))
-		//}
+		restaurants := v1.Group("/restaurants")
+		{
+			restaurants.POST("", ginrestaurent.CreateRestaurant(sc))
+			restaurants.GET("", ginrestaurent.ListRestaurant(sc))
+			restaurants.GET("/:id", ginrestaurent.GetRestaurant(sc))
+			restaurants.PATCH("/:id", ginrestaurent.UpdateRestaurant(sc))
+			restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(sc))
+			//restaurants.POST("/:id/like", ginlikerestaurant.UserLikeRestaurant(sc))
+			//restaurants.DELETE("/:id/unlike", ginlikerestaurant.UserUnLikeRestaurant(sc))
+		}
 	}
 }

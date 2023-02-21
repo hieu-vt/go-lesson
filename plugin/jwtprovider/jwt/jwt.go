@@ -19,7 +19,7 @@ func NewTokenJwtProvider(prefix string) *jwtProvider {
 }
 
 type myClaims struct {
-	Payload tokenprovider.TokenPayload `json:"payload"`
+	Payload jwtprovider.TokenPayload `json:"payload"`
 	jwt.StandardClaims
 }
 
@@ -37,7 +37,7 @@ func (j *jwtProvider) SecretKey() string {
 	return j.secret
 }
 
-func (j *jwtProvider) Generate(data tokenprovider.TokenPayload, expiry int) (jwtprovider.Token, error) {
+func (j *jwtProvider) Generate(data jwtprovider.TokenPayload, expiry int) (jwtprovider.Token, error) {
 	// generate the JWT
 	now := time.Now()
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, myClaims{
@@ -62,7 +62,7 @@ func (j *jwtProvider) Generate(data tokenprovider.TokenPayload, expiry int) (jwt
 	}, nil
 }
 
-func (j *jwtProvider) Validate(myToken string) (*tokenprovider.TokenPayload, error) {
+func (j *jwtProvider) Validate(myToken string) (*jwtprovider.TokenPayload, error) {
 	res, err := jwt.ParseWithClaims(myToken, &myClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(j.secret), nil
 	})

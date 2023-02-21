@@ -4,7 +4,6 @@ import (
 	"context"
 	"lesson-5-goland/common"
 	"lesson-5-goland/component"
-	"lesson-5-goland/component/tokenprovider"
 	"lesson-5-goland/modules/user/usermodel"
 	"lesson-5-goland/plugin/jwtprovider"
 	"lesson-5-goland/reddit"
@@ -55,7 +54,7 @@ func (biz *loginBiz) Login(ctx context.Context, body *usermodel.UserLogin) (jwtp
 	//	URole: string(user.Role),
 	//}
 
-	token, err := biz.tokenProvider.Generate(tokenprovider.TokenPayload{
+	token, err := biz.tokenProvider.Generate(jwtprovider.TokenPayload{
 		UserId: user.Id,
 		Role:   string(user.Role),
 	}, biz.expiry)

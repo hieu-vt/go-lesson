@@ -7,14 +7,14 @@ import (
 )
 
 type Provider interface {
-	Generate(data tokenprovider.TokenPayload, expiry int) (Token, error)
+	Generate(data TokenPayload, expiry int) (Token, error)
 	Validate(token string) (*tokenprovider.TokenPayload, error)
 	SecretKey() string
 }
 
-type TokenPayload interface {
-	UserId() int
-	Role() string
+type TokenPayload struct {
+	UserId int    `json:"user_id"`
+	Role   string `json:"role"`
 }
 
 type Token interface {
