@@ -27,6 +27,10 @@ func GetUserByIds(sc goservice.ServiceContext) gin.HandlerFunc {
 			panic(err)
 		}
 
+		for i := range result {
+			result[i].GenUID(common.DbTypeUser)
+		}
+
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(result))
 	}
 }
