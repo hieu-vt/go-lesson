@@ -15,6 +15,7 @@ const (
 
 	DBMain      = "mysql"
 	JwtProvider = "jwt-provider"
+	UserApi     = "user-api"
 )
 
 type Requester interface {

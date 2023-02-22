@@ -29,9 +29,10 @@ func ListRestaurant(sc goservice.ServiceContext) gin.HandlerFunc {
 
 		paging.FullFill()
 		db := common.GetMainDb(sc)
+		userService := sc.MustGet(common.UserApi).(restaurantrepository.UserService)
 		store := restaurantstorage.NewSqlStore(db)
 		likeStore := restaurantlikestorage.NewSqlStore(db)
-		repository := restaurantrepository.NewListRepository(store, likeStore)
+		repository := restaurantrepository.NewListRepository(store, likeStore, userService)
 		biz := restaurantbiz.NewListRestaurant(repository)
 		result, err := biz.ListRestaurant(c, filter, paging)
 

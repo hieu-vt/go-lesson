@@ -9,6 +9,7 @@ import (
 	"lesson-5-goland/common"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/plugin/jwtprovider/jwt"
+	"lesson-5-goland/plugin/remoteapi"
 	sdkgorm2 "lesson-5-goland/plugin/sdkgorm"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ func newService() goservice.Service {
 		goservice.WithVersion("1.0.0"),
 		goservice.WithInitRunnable(sdkgorm2.NewGormDB("main", common.DBMain)),
 		goservice.WithInitRunnable(jwt.NewTokenJwtProvider(common.JwtProvider)),
+		goservice.WithInitRunnable(remoteapi.NewUserApi(common.UserApi)),
 	)
 
 	return service
@@ -44,6 +46,7 @@ var rootCmd = &cobra.Command{
 			})
 
 			handlers.MainRoute(engine, service)
+			handlers.UserServiceRoute(engine, service)
 		})
 
 		if err := service.Start(); err != nil {

@@ -3,12 +3,11 @@ package jwtprovider
 import (
 	"errors"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component/tokenprovider"
 )
 
 type Provider interface {
 	Generate(data TokenPayload, expiry int) (Token, error)
-	Validate(token string) (*tokenprovider.TokenPayload, error)
+	Validate(token string) (*TokenPayload, error)
 	SecretKey() string
 }
 

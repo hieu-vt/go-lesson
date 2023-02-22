@@ -14,12 +14,13 @@ const (
 
 type Restaurant struct {
 	common.SqlModel `json:",inline"`
-	Name            string         `json:"name" gorm:"column:name;"`
-	Addr            string         `json:"addr" gorm:"column:addr;"`
-	Logo            *common.Image  `json:"logo" gorm:"column:logo;""`
-	OwnerId         int            `json:"-" gorm:"column:owner_id;""`
-	Cover           *common.Images `json:"cover" gorm:"column:cover;""`
-	LikeCount       int            `json:"like_count" gorm:"column:like_count;"`
+	Name            string             `json:"name" gorm:"column:name;"`
+	Addr            string             `json:"addr" gorm:"column:addr;"`
+	Logo            *common.Image      `json:"logo" gorm:"column:logo;""`
+	OwnerId         int                `json:"-" gorm:"column:owner_id;""`
+	Cover           *common.Images     `json:"cover" gorm:"column:cover;""`
+	LikeCount       int                `json:"like_count" gorm:"column:like_count;"`
+	Owner           *common.SimpleUser `json:"owner" gorm:"-"`
 }
 
 func (Restaurant) TableName() string {
