@@ -66,6 +66,7 @@ func (userService) Stop() <-chan bool {
 
 func (u *userService) GetUsers(ctx context.Context, ids []int) ([]common.SimpleUser, error) {
 	u.client = resty.New()
+	u.log = logger.GetCurrent().GetLogger(u.prefix)
 
 	type requestUserParam struct {
 		Ids []int `json:"ids"`
@@ -84,12 +85,12 @@ func (u *userService) GetUsers(ctx context.Context, ids []int) ([]common.SimpleU
 		Post(fmt.Sprintf("%s/%s", u.serviceURL, "internal/get-users-by-ids"))
 
 	if err != nil {
-		//u.log.Infoln(err)
+		u.log.Infoln(err)
 		return nil, err
 	}
 
 	if !resp.IsSuccess() {
-		//u.log.Infoln(resp.RawResponse)
+		u.log.Infoln(resp.RawResponse)
 		return nil, errors.New(resp.RawResponse.Status)
 	}
 
