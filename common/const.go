@@ -13,9 +13,12 @@ const (
 const (
 	CurrentUser = "user"
 
-	DBMain      = "mysql"
-	JwtProvider = "jwt-provider"
-	UserApi     = "user-api"
+	DBMain                     = "mysql"
+	JwtProvider                = "jwt-provider"
+	UserApi                    = "user-api"
+	PluginNATS                 = "nats"
+	TopicUserLikeRestaurant    = "restaurant.like"
+	TopicUserDislikeRestaurant = "restaurant.dislike"
 )
 
 type Requester interface {

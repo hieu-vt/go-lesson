@@ -7,6 +7,7 @@ import (
 	restaurantlikebiz "lesson-5-goland/modules/restaurantlike/business"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
 	restaurantlikestorage "lesson-5-goland/modules/restaurantlike/storage"
+	"lesson-5-goland/plugin/pubsub"
 	"net/http"
 )
 
@@ -27,7 +28,8 @@ func UserUnLikeRestaurant(sc goservice.ServiceContext) gin.HandlerFunc {
 
 		store := restaurantlikestorage.NewSqlStore(common.GetMainDb(sc))
 		//deCreateLikeRestaurant := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := restaurantlikebiz.NewUnlikeRestaurantStore(store, appCtx.GetPubsub())
+		pb := sc.MustGet(common.PluginNATS).(pubsub.NatsPubSub)
+		biz := restaurantlikebiz.NewUnlikeRestaurantStore(store, pb)
 
 		if err := biz.UserUnlikeRestaurant(c, &data); err != nil {
 			panic(err)

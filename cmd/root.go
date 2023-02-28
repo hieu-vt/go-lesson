@@ -9,6 +9,7 @@ import (
 	"lesson-5-goland/common"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/plugin/jwtprovider/jwt"
+	"lesson-5-goland/plugin/pubsub/nats"
 	"lesson-5-goland/plugin/remoteapi"
 	sdkgorm2 "lesson-5-goland/plugin/sdkgorm"
 	"net/http"
@@ -22,6 +23,7 @@ func newService() goservice.Service {
 		goservice.WithInitRunnable(sdkgorm2.NewGormDB("main", common.DBMain)),
 		goservice.WithInitRunnable(jwt.NewTokenJwtProvider(common.JwtProvider)),
 		goservice.WithInitRunnable(remoteapi.NewUserApi(common.UserApi)),
+		goservice.WithInitRunnable(nats.NewNatsPubSub(common.PluginNATS)),
 	)
 
 	return service
@@ -57,6 +59,9 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	rootCmd.AddCommand(outEnvCmd)
+
+	rootCmd.AddCommand(StartSubscribeUserLikeRestaurantCmd)
+	rootCmd.AddCommand(StartSubscribeUserDislikeRestaurantCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

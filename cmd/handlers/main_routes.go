@@ -7,6 +7,7 @@ import (
 	"lesson-5-goland/common"
 	"lesson-5-goland/middleware"
 	"lesson-5-goland/modules/restaurant/restauranttransport/ginrestaurent"
+	ginlikerestaurant "lesson-5-goland/modules/restaurantlike/transporter/gin"
 	"lesson-5-goland/modules/user/userstorage"
 	"lesson-5-goland/modules/user/usertransport/ginuser"
 	"net/http"
@@ -36,8 +37,8 @@ func MainRoute(router *gin.Engine, sc goservice.ServiceContext) {
 			restaurants.GET("/:id", ginrestaurent.GetRestaurant(sc))
 			restaurants.PATCH("/:id", ginrestaurent.UpdateRestaurant(sc))
 			restaurants.DELETE("/:id", ginrestaurent.DeleteRestaurant(sc))
-			//restaurants.POST("/:id/like", ginlikerestaurant.UserLikeRestaurant(sc))
-			//restaurants.DELETE("/:id/unlike", ginlikerestaurant.UserUnLikeRestaurant(sc))
+			restaurants.POST("/:id/like", middleware.RequiredAuth(sc, userStore), ginlikerestaurant.UserLikeRestaurant(sc))
+			restaurants.DELETE("/:id/unlike", middleware.RequiredAuth(sc, userStore), ginlikerestaurant.UserUnLikeRestaurant(sc))
 		}
 	}
 }
