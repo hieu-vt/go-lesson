@@ -73,11 +73,11 @@ func (gdb *gormDB) isDisabled() bool {
 }
 
 func (gdb *gormDB) Configure() error {
+	gdb.logger = logger.GetCurrent().GetLogger(gdb.name)
+
 	if gdb.isDisabled() || gdb.isRunning {
 		return nil
 	}
-
-	gdb.logger = logger.GetCurrent().GetLogger(gdb.name)
 
 	dbType := getDBType(gdb.DBType)
 	if dbType == GormDBTypeNotSupported {

@@ -19,7 +19,7 @@ var StartSubscribeUserDislikeRestaurantCmd = &cobra.Command{
 	Short: "User dislike restaurant",
 	Run: func(cmd *cobra.Command, args []string) {
 		service := goservice.New(
-			goservice.WithInitRunnable(sdkgorm.NewGormDB(common.DBMain, common.DBMain)),
+			goservice.WithInitRunnable(sdkgorm.NewGormDB("main", common.DBMain)),
 			goservice.WithInitRunnable(nats.NewNatsPubSub(common.PluginNATS)),
 		)
 
