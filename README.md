@@ -24,3 +24,16 @@ docker load -i food-delivery-service.tar
 cat ./nginx-conf/default.conf
 ```
 
+## Install nats pubsub
+```dockerfile
+docker run -d --name nats --network my-network -p 4222:4222 -p 8222:8222 nats
+```
+
+
+## Install nats redis
+```dockerfile
+docker run --name redis -e ALLOW_EMPTY_PASSWORD=yes bitnami/redis:latest
+```
+
+
+
