@@ -53,3 +53,5 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 ```
 [Link download and install protobuf](https://grpc.io/docs/languages/go/quickstart/)
 
+## Note about GRPC
+* Bình thường thì khi 2 service kết nối với nhau bằng grpc thì thường sẽ đi qua con proxy chứ không kết nối trực tiếp
