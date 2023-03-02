@@ -35,5 +35,21 @@ docker run -d --name nats --network my-network -p 4222:4222 -p 8222:8222 nats
 docker run --name redis -e ALLOW_EMPTY_PASSWORD=yes bitnami/redis:latest
 ```
 
+## Install BufCli
+```dockerfile
+brew install protobuf
+brew install bufbuild/buf/buf
+```
+[Link download and buf cli](https://docs.buf.build/installation/)
 
+## Go plugins for the protocol compiler
+```dockerfile
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+```
+### Update your PATH so that the protoc compiler can find the plugins
+```
+export PATH="$PATH:$(go env GOPATH)/bin"
+```
+[Link download and install protobuf](https://grpc.io/docs/languages/go/quickstart/)
 

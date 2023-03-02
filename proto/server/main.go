@@ -5,17 +5,17 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	demo "lesson-5-goland/proto"
+	demo2 "lesson-5-goland/proto/demo"
 	"net"
 )
 
 type server struct {
-	demo.UnimplementedRestaurantLikeServiceServer
+	demo2.UnimplementedRestaurantLikeServiceServer
 }
 
-func (s *server) GetRestaurantLikeStar(ctx context.Context, req *demo.RestaurantLikeStarRequest) (*demo.RestaurantLikeStarResponse, error) {
+func (s *server) GetRestaurantLikeStar(ctx context.Context, req *demo2.RestaurantLikeStarRequest) (*demo2.RestaurantLikeStarResponse, error) {
 	log.Println("Server receiver: ", req.ReIds)
-	return &demo.RestaurantLikeStarResponse{Result: map[int32]int32{
+	return &demo2.RestaurantLikeStarResponse{Result: map[int32]int32{
 		1: 1,
 		2: 4,
 	}}, nil
@@ -34,7 +34,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	demo.RegisterRestaurantLikeServiceServer(s, &server{})
+	demo2.RegisterRestaurantLikeServiceServer(s, &server{})
 
 	s.Serve(lis)
 }
