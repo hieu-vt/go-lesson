@@ -17,6 +17,7 @@ const (
 	JwtProvider                = "jwt-provider"
 	UserApi                    = "user-api"
 	PluginNATS                 = "nats"
+	PluginAppRedis             = "redis"
 	TopicUserLikeRestaurant    = "restaurant.like"
 	TopicUserDislikeRestaurant = "restaurant.dislike"
 )

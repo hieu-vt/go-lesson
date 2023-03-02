@@ -6,6 +6,7 @@ import (
 	"fmt"
 	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
+	"lesson-5-goland/appcache"
 	"lesson-5-goland/common"
 	"lesson-5-goland/modules/user/usermodel"
 	"lesson-5-goland/plugin/jwtprovider"
@@ -48,14 +49,16 @@ func RequiredAuth(sc goservice.ServiceContext, authStore AuthenStore) func(c *gi
 			panic(err)
 		}
 
-		//userCache := reddit.NewUserCache(appCtx.GetReddit(), authStore)
+		cache := appcache.NewAppCache(sc)
+
+		userAuthCache := appcache.NewUserAuthCache(authStore, cache)
 
 		payload, err := tokenProvider.Validate(token)
 		if err != nil {
 			panic(err)
 		}
 
-		user, err := authStore.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
+		user, err := userAuthCache.FindUser(c.Request.Context(), map[string]interface{}{"id": payload.UserId})
 
 		if err != nil {
 			panic(err)

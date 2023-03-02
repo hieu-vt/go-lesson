@@ -8,6 +8,7 @@ import (
 	"lesson-5-goland/cmd/handlers"
 	"lesson-5-goland/common"
 	"lesson-5-goland/middleware"
+	"lesson-5-goland/plugin/appredis"
 	"lesson-5-goland/plugin/jwtprovider/jwt"
 	"lesson-5-goland/plugin/pubsub/nats"
 	"lesson-5-goland/plugin/remoteapi"
@@ -24,6 +25,7 @@ func newService() goservice.Service {
 		goservice.WithInitRunnable(jwt.NewTokenJwtProvider(common.JwtProvider)),
 		goservice.WithInitRunnable(remoteapi.NewUserApi(common.UserApi)),
 		goservice.WithInitRunnable(nats.NewNatsPubSub(common.PluginNATS)),
+		goservice.WithInitRunnable(appredis.NewAppRedis("main-redis", common.PluginAppRedis)),
 	)
 
 	return service
