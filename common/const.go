@@ -18,6 +18,8 @@ const (
 	UserApi                    = "user-api"
 	PluginNATS                 = "nats"
 	PluginAppRedis             = "redis"
+	PluginGRPCServer           = "grpc-server"
+	PluginGrpcUserClient       = "GrpcUserClient"
 	TopicUserLikeRestaurant    = "restaurant.like"
 	TopicUserDislikeRestaurant = "restaurant.dislike"
 )
