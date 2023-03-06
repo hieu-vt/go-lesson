@@ -4,6 +4,7 @@ import (
 	"context"
 	"lesson-5-goland/common"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
+	pubsub2 "lesson-5-goland/plugin/pubsub"
 	"lesson-5-goland/pubsub"
 )
 
@@ -19,13 +20,13 @@ type UnlikeRestaurantStore interface {
 type unlikeRestaurantBiz struct {
 	store UnlikeRestaurantStore
 	//deCreateStore DeCreateLikeRestaurantStore
-	pubsub pubsub.Pubsub
+	pubsub pubsub2.NatsPubSub
 }
 
 func NewUnlikeRestaurantStore(
 	store UnlikeRestaurantStore,
 	//deCreateStore DeCreateLikeRestaurantStore,
-	pubsub pubsub.Pubsub,
+	pubsub pubsub2.NatsPubSub,
 ) *unlikeRestaurantBiz {
 	return &unlikeRestaurantBiz{
 		store: store,
@@ -56,7 +57,10 @@ func (biz *unlikeRestaurantBiz) UserUnlikeRestaurant(ctx context.Context, data *
 	//})
 	//
 	//asyncjob.NewGroup(true, job).Run(ctx)
-	biz.pubsub.Publish(ctx, common.TopicUserDislikeRestaurant, pubsub.NewMessage(data))
+	biz.pubsub.Publish(ctx, common.TopicUserDislikeRestaurant, pubsub.NewMessage(map[string]interface{}{
+		"user_id":       data.UserId,
+		"restaurant_id": data.RestaurantId,
+	}))
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"lesson-5-goland/common"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
+	pubsub2 "lesson-5-goland/plugin/pubsub"
 	"lesson-5-goland/pubsub"
 	"log"
 )
@@ -22,13 +23,13 @@ type likeRestaurantBiz struct {
 
 	//restaurantStore InCreateLikeRestaurantStore
 
-	pubsub pubsub.Pubsub
+	pubsub pubsub2.NatsPubSub
 }
 
 func NewLikeRestaurantStore(
 	store LikeRestaurantStore,
 	//restaurantStore InCreateLikeRestaurantStore
-	pubsub pubsub.Pubsub,
+	pubsub pubsub2.NatsPubSub,
 ) *likeRestaurantBiz {
 	return &likeRestaurantBiz{
 		store: store,
@@ -70,7 +71,10 @@ func (biz *likeRestaurantBiz) UserLikeRestaurant(ctx context.Context, data *rest
 	//
 	//_ = asyncjob.NewGroup(true, job).Run(ctx)
 
-	biz.pubsub.Publish(ctx, common.TopicUserLikeRestaurant, pubsub.NewMessage(data))
+	biz.pubsub.Publish(ctx, common.TopicUserLikeRestaurant, pubsub.NewMessage(map[string]interface{}{
+		"user_id":       data.UserId,
+		"restaurant_id": data.RestaurantId,
+	}))
 
 	return nil
 }

@@ -12,6 +12,16 @@ const (
 
 const (
 	CurrentUser = "user"
+
+	DBMain                     = "mysql"
+	JwtProvider                = "jwt-provider"
+	UserApi                    = "user-api"
+	PluginNATS                 = "nats"
+	PluginAppRedis             = "redis"
+	PluginGRPCServer           = "grpc-server"
+	PluginGrpcUserClient       = "GrpcUserClient"
+	TopicUserLikeRestaurant    = "restaurant.like"
+	TopicUserDislikeRestaurant = "restaurant.dislike"
 )
 
 type Requester interface {

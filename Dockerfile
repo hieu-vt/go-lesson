@@ -6,5 +6,5 @@ WORKDIR /app/
 ADD ./app /app/
 # ADD ./zoneinfo.zip /usr/local/go/lib/time/
 #
-ADD ./demo.html /app/
+#ADD ./demo.html /app/
 ENTRYPOINT ["./app"]

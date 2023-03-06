@@ -7,12 +7,12 @@ import (
 
 type Message struct {
 	id        string
-	channel   Topic // can be ignore
-	data      interface{}
+	channel   string // can be ignore
+	data      map[string]interface{}
 	createdAt time.Time
 }
 
-func NewMessage(data interface{}) *Message {
+func NewMessage(data map[string]interface{}) *Message {
 	now := time.Now().UTC()
 
 	return &Message{
@@ -26,14 +26,14 @@ func (evt *Message) String() string {
 	return fmt.Sprintf("Message %s", evt.channel)
 }
 
-func (evt *Message) Channel() Topic {
+func (evt *Message) Channel() string {
 	return evt.channel
 }
 
-func (evt *Message) SetChannel(channel Topic) {
+func (evt *Message) SetChannel(channel string) {
 	evt.channel = channel
 }
 
-func (evt *Message) Data() interface{} {
+func (evt *Message) Data() map[string]interface{} {
 	return evt.data
 }

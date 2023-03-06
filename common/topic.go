@@ -2,8 +2,8 @@ package common
 
 const (
 	// restaurant
-	TopicUserLikeRestaurant                   = "TopicUserLikeRestaurant"
-	TopicUserDislikeRestaurant                = "TopicUserDislikeRestaurant"
+	//TopicUserLikeRestaurant                   = "TopicUserLikeRestaurant"
+	//TopicUserDislikeRestaurant                = "TopicUserDislikeRestaurant"
 	TopicCreateRestaurantFoodsAfterCreateFood = "TopicCreateRestaurantFoodsAfterCreateFood"
 
 	// socket

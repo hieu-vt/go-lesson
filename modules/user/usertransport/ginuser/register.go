@@ -1,9 +1,9 @@
 package ginuser
 
 import (
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 	"lesson-5-goland/component/hasher"
 	"lesson-5-goland/modules/user/userbiz"
 	"lesson-5-goland/modules/user/usermodel"
@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func Register(appCtx component.AppContext) gin.HandlerFunc {
+func Register(sc goservice.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var data usermodel.UserCreate
 
@@ -19,7 +19,7 @@ func Register(appCtx component.AppContext) gin.HandlerFunc {
 			panic(err)
 		}
 
-		store := userstorage.NewSqlStore(appCtx.GetMainDBConnection())
+		store := userstorage.NewSqlStore(common.GetMainDb(sc))
 		hash := hasher.NewMd5Hash()
 		biz := userbiz.NewRegisterBiz(store, hash)
 

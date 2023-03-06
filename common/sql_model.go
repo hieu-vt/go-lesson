@@ -14,3 +14,19 @@ func (m *SqlModel) GenUID(dbType int) {
 	uid := NewUID(uint32(m.Id), dbType, 1)
 	m.FakeId = &uid
 }
+
+func (sqlModel *SqlModel) PrepareForInsert() {
+	now := time.Now().UTC()
+	sqlModel.Id = 0
+	sqlModel.Status = 1
+	sqlModel.CreatedAt = now
+	sqlModel.UpdatedAt = now
+}
+
+func (sqlModel *SqlModel) GetRealId() {
+	if sqlModel.FakeId == nil {
+		return
+	}
+
+	sqlModel.Id = int(sqlModel.FakeId.GetLocalID())
+}

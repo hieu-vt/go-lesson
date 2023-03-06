@@ -1,16 +1,17 @@
 package ginlikerestaurant
 
 import (
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 	restaurantlikebiz "lesson-5-goland/modules/restaurantlike/business"
 	restaurantlikemodel "lesson-5-goland/modules/restaurantlike/model"
 	restaurantlikestorage "lesson-5-goland/modules/restaurantlike/storage"
+	"lesson-5-goland/plugin/pubsub"
 	"net/http"
 )
 
-func UserLikeRestaurant(appCtx component.AppContext) gin.HandlerFunc {
+func UserLikeRestaurant(sc goservice.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		uidRestaurant, err := common.FromBase58(c.Param("id"))
 
@@ -25,9 +26,12 @@ func UserLikeRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		data.RestaurantId = int(uidRestaurant.GetLocalID())
 		data.UserId = requester.GetUserId()
 
-		store := restaurantlikestorage.NewSqlStore(appCtx.GetMainDBConnection())
+		db := common.GetMainDb(sc)
+
+		store := restaurantlikestorage.NewSqlStore(db)
 		//inCreateStore := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		biz := restaurantlikebiz.NewLikeRestaurantStore(store, appCtx.GetPubsub())
+		pb := sc.MustGet(common.PluginNATS).(pubsub.NatsPubSub)
+		biz := restaurantlikebiz.NewLikeRestaurantStore(store, pb)
 
 		if err := biz.UserLikeRestaurant(c, &data); err != nil {
 			panic(err)

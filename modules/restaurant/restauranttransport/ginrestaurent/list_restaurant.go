@@ -1,9 +1,9 @@
 package ginrestaurent
 
 import (
+	goservice "github.com/200Lab-Education/go-sdk"
 	"github.com/gin-gonic/gin"
 	"lesson-5-goland/common"
-	"lesson-5-goland/component"
 	"lesson-5-goland/modules/restaurant/restaurantbiz"
 	"lesson-5-goland/modules/restaurant/restaurantmodel"
 	"lesson-5-goland/modules/restaurant/restaurantrepository"
@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
+func ListRestaurant(sc goservice.ServiceContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filter restaurantmodel.Filter
 
@@ -28,10 +28,11 @@ func ListRestaurant(appCtx component.AppContext) gin.HandlerFunc {
 		}
 
 		paging.FullFill()
-
-		store := restaurantstorage.NewSqlStore(appCtx.GetMainDBConnection())
-		likeStore := restaurantlikestorage.NewSqlStore(appCtx.GetMainDBConnection())
-		repository := restaurantrepository.NewListRepository(store, likeStore)
+		db := common.GetMainDb(sc)
+		userService := sc.MustGet(common.PluginGrpcUserClient).(restaurantrepository.UserService)
+		store := restaurantstorage.NewSqlStore(db)
+		likeStore := restaurantlikestorage.NewSqlStore(db)
+		repository := restaurantrepository.NewListRepository(store, likeStore, userService)
 		biz := restaurantbiz.NewListRestaurant(repository)
 		result, err := biz.ListRestaurant(c, filter, paging)
 

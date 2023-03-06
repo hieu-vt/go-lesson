@@ -1,4 +1,4 @@
-APP_NAME=food-delivery
+APP_NAME=food-delivery-service
 
 docker load -i ${APP_NAME}.tar
 docker rm -f ${APP_NAME}
