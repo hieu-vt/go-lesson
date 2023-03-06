@@ -1,5 +1,19 @@
 # Learn Golang from 200Lab team 
 
+## Deploy
+```
+docker run -d -p 80:80 -p 443:443 --network my-main-net --name nginx-proxy -e ENABLE_IPV6=true --privileged=true -v ~/nginx/vhost.d:/etc/nginx/vhost.d -v ~/nginx-certs:/etc/nginx/certs:ro -v ~/nginx-conf:/etc/nginx/conf.d -v ~/nginx-logs:/var/log/nginx -v /usr/share/nginx/html -v /var/run/docker.sock:/tmp/docker.sock:ro --label nginx-proxy jwilder/nginx-proxy
+```
+```
+docker run -d  --network my-main-net -v ~/nginx/vhost.d:/etc/nginx/vhost.d -v ~/nginx-certs:/etc/nginx/certs:rw -v /var/run/docker.sock:/var/run/docker.sock:ro --volumes-from nginx-proxy --privileged=true  jrcs/letsencrypt-nginx-proxy-companion
+```
+
+[link nginx-proxy 1](https://github.com/nginx-proxy/nginx-proxy)
+
+[link nginx-proxy 2](https://github.com/nginx-proxy/acme-companion)
+
+#### **--> run ./deploy.sh in service**
+
 ## Build golang for linux
 ```ecma script level 3
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app
