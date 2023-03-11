@@ -59,7 +59,7 @@ docker run -d --name nats --network my-network -p 4222:4222 -p 8222:8222 nats
 
 ## Install nats redis
 ```dockerfile
-docker run --name redis -e ALLOW_EMPTY_PASSWORD=yes bitnami/redis:latest
+docker run --name redis -e ALLOW_EMPTY_PASSWORD=yes -p 6379:6379 bitnami/redis:latest
 ```
 
 ## Install BufCli
