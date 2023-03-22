@@ -1,6 +1,8 @@
 package main
 
-import "lesson-5-goland/cmd"
+import (
+	"lesson-5-goland/cmd"
+)
 
 //func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 //	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint("http://localhost:14268/api/traces")))
